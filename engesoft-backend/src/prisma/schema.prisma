@@ -7,9 +7,9 @@ datasource db {
 }
 
 model User {
-    id          String      @id @default(uuid())
-    email       String      @unique
-    password    String
-    refeshToken String?
-    createdAt   DateTime    @default(now())
+    id            String      @id @default(uuid())
+    email         String      @unique
+    password      String
+    refreshToken  String?
+    createdAt     DateTime    @default(now())
 }
