@@ -43,6 +43,18 @@ services:
     volumes:
       - pgadmin_data:/var/lib/pgadmin
 
+  frontend:
+    build:
+      context: ../engesoft-frontend
+      dockerfile: ../engesoft-dockerfiles/front/Dockerfile
+    container_name: front-engesoft
+    restart: always
+    ports:
+      - "3001:3000"
+    volumes:
+      - ../engesoft-frontend:/app
+      - /app/node_modules
+
 volumes:
   postgres_data:
   pgadmin_data:
