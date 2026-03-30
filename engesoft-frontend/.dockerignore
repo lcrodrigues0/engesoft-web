@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# Git / VCS
+.git/
+.gitignore
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Logs & temp
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+tmp/
+temp/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Tests / coverage
+coverage/
+
+# Compose & meta — not needed inside image context
+docker-compose.yml
+docker-compose.*.yml
+*.md
+
+# Optional: root Dockerfile if you only use front/Dockerfile via -f
+# Dockerfile
