@@ -1,3 +1,5 @@
+'use client';
+
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -11,8 +13,28 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Image from "next/image"
+import { useState } from "react";
+import { login } from "@/services/auth.service";
+import { useRouter } from 'next/navigation';
 
 export function LoginPage() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const router = useRouter();
+
+  async function handleLogin(){
+    try {
+      await login(email, password);
+
+      router.push('/dashboard');
+
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Erro ao fazer login";
+      alert(message);
+    }
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 min-h-screen">
   
@@ -44,31 +66,35 @@ export function LoginPage() {
               Entre para acessar o sistema
             </CardDescription>
           </CardHeader>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              handleLogin();
+            }}>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label>Email</Label>
+                  <Input type="email" placeholder="seu@email.com" onChange={(e) => setEmail(e.target.value)} />
+                </div>
 
-          <CardContent className="space-y-4">
-            <div>
-              <Label>Email</Label>
-              <Input type="email" placeholder="seu@email.com" />
-            </div>
+                <div>
+                  <Label>Senha</Label>
+                  <Input type="password" onChange={(e) => setPassword(e.target.value)}/>
+                </div>
 
-            <div>
-              <Label>Senha</Label>
-              <Input type="password" />
-            </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox />
+                  <Label>Lembrar de mim</Label>
+                </div>
 
-            <div className="flex items-center space-x-2">
-              <Checkbox />
-              <Label>Lembrar de mim</Label>
-            </div>
+                <Button className="w-full bg-slate-700">Entrar</Button>
+              </CardContent>
+            </form>
 
-            <Button className="w-full bg-slate-700">Entrar</Button>
-          </CardContent>
-
-          <CardFooter className="flex flex-col gap-2">
-            <Button variant="link">Criar conta</Button>
-            <Button variant="link">Esqueci minha senha</Button>
-          </CardFooter>
-        </Card>
+            <CardFooter className="flex flex-col gap-2">
+              <Button variant="link" onClick={() => router.replace("/create-account")}>Criar conta</Button>
+              <Button variant="link">Esqueci minha senha</Button>
+            </CardFooter>
+          </Card>
       </div>
     </div>
   )

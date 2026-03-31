@@ -11,7 +11,7 @@ const AuthContext = createContext({} as AuthContextType);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setAuthenticated] = useState(
-    !!localStorage.getItem('token')
+    () => typeof window !== 'undefined' && !!localStorage.getItem('token')
   );
 
   return (
