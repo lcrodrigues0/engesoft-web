@@ -1,3 +1,9 @@
+import { AuthorCtaCard } from "@/components/dashboard/author-cta-card";
+
 export default function DashboardPage() {
-  return <p className="text-slate-800">Hello, world!</p>;
+  return (
+    <div className="flex flex-col items-start min-h-[min(60dvh,32rem)] py-6">
+      <AuthorCtaCard />
+    </div>
+  );
 }
