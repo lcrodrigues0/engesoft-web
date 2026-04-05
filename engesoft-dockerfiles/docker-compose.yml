@@ -4,11 +4,11 @@ services:
     container_name: db-engesoft
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: pass
-      POSTGRES_DB: engesoft_db
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -19,27 +19,27 @@ services:
     container_name: back-engesoft
     restart: always
     ports:
-      - "3000:3000"
+      - "${API_PORT:-3000}:3000"
     environment:
-      DATABASE_URL: postgresql://postgres:pass@db:5432/engesoft_db
-      JWT_SECRET: secret
-      JWT_REFRESH_SECRET: refresh_secret
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
     depends_on:
       - db
     command: sh -c "npx prisma migrate deploy && npx prisma generate && npm run dev"
     volumes:
       - ../engesoft-backend:/app
       - /app/node_modules
-    
+
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin-engesoft
     restart: always
     ports:
-      - "5050:80"
+      - "${PGADMIN_PORT:-5050}:80"
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     volumes:
       - pgadmin_data:/var/lib/pgadmin
 
@@ -50,7 +50,11 @@ services:
     container_name: front-engesoft
     restart: always
     ports:
-      - "3001:3000"
+      - "${FRONTEND_PORT}:3000"
+    enviroment:
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
     volumes:
       - ../engesoft-frontend:/app
       - /app/node_modules
