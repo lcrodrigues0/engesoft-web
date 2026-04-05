@@ -1,8 +1,9 @@
-import jwt from  'jsonwebtoken'
+import type { Role } from '@prisma/client';
+import jwt from 'jsonwebtoken';
 
-export function generateAccessToken(userId: string){
+export function generateAccessToken(userId: string, role: Role) {
     return jwt.sign(
-        { id: userId },
+        { id: userId, role },
         process.env.JWT_SECRET as string,
         { expiresIn: '15m' }
     );

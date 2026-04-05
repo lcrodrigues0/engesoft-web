@@ -1,8 +1,10 @@
+import 'dotenv/config';
 import express from 'express';
 import { prisma } from './prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import cors from 'cors';
+import { userController } from './controllers/user.controller';
 
 const app = express();
 
@@ -21,6 +23,8 @@ app.get('/', (req, res) => {
         message: 'It\'s working!'
     });
 });
+
+app.post('/register', (req, res) => userController.register(req, res));
 
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;

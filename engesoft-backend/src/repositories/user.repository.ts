@@ -1,4 +1,5 @@
 import { prisma } from '../prisma/client'
+import { Role } from '@prisma/client'
 
 export const userRepository = {
     async findByEmail(email: string){
@@ -14,5 +15,17 @@ export const userRepository = {
                 refreshToken: token
             }
         })
-    }
+    },
+
+    async create(data: { name: string, email: string; password: string, role: Role}) {
+        return prisma.user.create({
+            data,
+            select: {
+                id: true,
+                email: true,
+                createdAt: true,
+                role: true,
+            },
+        });
+    },
 } 

@@ -1,9 +1,32 @@
-const API_URL = 'http://localhost:3000';
+import { getAuthToken } from "@/lib/auth-token";
+
+const API_URL = "http://localhost:3000";
+
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public readonly status: number,
+    public readonly body?: unknown,
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
+function messageFromBody(data: unknown): string {
+  if (
+    data &&
+    typeof data === 'object' &&
+    'message' in data &&
+    typeof (data as { message: unknown }).message === 'string'
+  ) {
+    return (data as { message: string }).message;
+  }
+  return 'Erro na requisição';
+}
 
 export async function apiFetch(path: string, options?: RequestInit) {
-  const token = typeof window !== 'undefined'
-    ? localStorage.getItem('token')
-    : null;
+  const token = getAuthToken();
 
   const res = await fetch(`${API_URL}${path}`, {
     ...options,
@@ -17,7 +40,7 @@ export async function apiFetch(path: string, options?: RequestInit) {
   const data = await res.json();
 
   if (!res.ok) {
-    throw new Error(data.message);
+    throw new ApiError(messageFromBody(data), res.status, data);
   }
 
   return data;

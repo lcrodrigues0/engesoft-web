@@ -1,16 +1,42 @@
-import { apiFetch } from '@/lib/api';
+import { setAuthToken, clearAuthToken } from "@/lib/auth-token";
+import { apiFetch } from "@/lib/api";
+import type { UserRole } from "@/types/user-role";
 
-export async function login(email: string, password: string) {
-  const data = await apiFetch('/login', {
-    method: 'POST',
+export interface RegisterDTO {
+  name: string;
+  email: string;
+  password: string;
+  role: UserRole;
+}
+
+export async function login(
+  email: string,
+  password: string,
+  rememberMe = true,
+) {
+  const data = await apiFetch("/login", {
+    method: "POST",
     body: JSON.stringify({ email, password }),
   });
 
-  localStorage.setItem('token', data.token);
+  setAuthToken(data.token, rememberMe);
 
   return data;
 }
 
 export function logout() {
-  localStorage.removeItem('token');
+  clearAuthToken();
+}
+
+export async function register(data: RegisterDTO){
+  const result = await apiFetch('/register', {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+  })
+
+  return result;
+
 }

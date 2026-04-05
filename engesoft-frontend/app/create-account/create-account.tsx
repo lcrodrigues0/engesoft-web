@@ -4,6 +4,11 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useRouter } from "next/navigation";
+import { register as registerAccount } from "@/services/auth.service";
+import { ApiError } from "@/lib/api";
+import { USER_ROLES, type UserRole } from "@/types/user-role";
+import { toast } from "sonner"
 
 import {
   Card,
@@ -18,7 +23,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Checkbox } from "@/components/ui/checkbox"
 
 import Image from "next/image"
 
@@ -28,14 +32,11 @@ import Image from "next/image"
 
 const schema = z
   .object({
-    role: z.enum(["autor", "avaliador", "editor"]),
+    role: z.enum(USER_ROLES),
     name: z.string().min(3, "Nome obrigatório"),
     email: z.email("Email inválido"),
-    institution: z.string().min(2, "Instituição obrigatória"),
     password: z.string().min(6, "Mínimo 6 caracteres"),
     confirmPassword: z.string(),
-    isMainAuthor: z.boolean().optional(),
-    expertise: z.string().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Senhas não coincidem",
@@ -49,30 +50,63 @@ type FormData = z.infer<typeof schema>
 // ----------------------
 
 export default function RegisterPage() {
-  const [role, setRole] = useState<"autor" | "avaliador" | "editor">("autor")
+  const [role, setRole] = useState<UserRole>(USER_ROLES[0])
+
+  const router = useRouter();
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     setValue,
+
   } = useForm<FormData>({
+
     resolver: zodResolver(schema),
     defaultValues: {
-      role: "autor",
+      role: USER_ROLES[0],
     },
   })
 
-  function onSubmit(data: FormData) {
-    console.log(data)
-    // Aqui você conecta com seu backend
+  async function onSubmit(data: FormData) {
+    try {
+      await registerAccount({
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        role: data.role
+      });
+
+      toast.success("Cadastro realizado com sucesso!", {
+        description: "Faça login para acessar o sistema."
+      })
+      router.replace("/login"); 
+
+    } catch (err: unknown) {
+      if (err instanceof ApiError && err.status === 409) {
+        toast.error("Erro ao realizar cadastro", {
+          description: err.message,
+        });
+        return;
+      }
+
+      const fallback =
+        err instanceof ApiError
+          ? err.message
+          : "Caso o erro persista, entre em contato com a equipe de desenvolvedores.";
+
+      toast.error("Erro ao realizar cadastro. Tente novamente", {
+        description: fallback
+      });
+    }
   }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 min-h-screen">
       
-      {/* LEFT SIDE */}
-      <div className="hidden md:flex relative bg-gradient-to-br from-slate-900 to-slate-700">
+       {/* Lado esquerdo */}
+       <div className="hidden md:flex md:items-center md:justify-end relative bg-linear-to-br from-zinc-950 to-zinc-900">
+
         <Image
           src="/images/auth/login-bg.png"
           alt="Background"
@@ -80,17 +114,17 @@ export default function RegisterPage() {
           className="object-cover opacity-20"
         />
 
-        <div className="relative z-10 p-10 text-white flex flex-col justify-center">
-          <h1 className="text-3xl font-bold">EngeSoft Manager</h1>
-          <p className="mt-4 text-slate-300">
-            Plataforma para submissão e avaliação de artigos científicos
+        <div className="relative z-10 p-10 text-white">
+          <h1 className="text-5xl font-bold">EngeSoft</h1>
+          <p className="mt-4 text-2xl text-gray-400">
+            Sistema de gestão de artigos científicos
           </p>
         </div>
       </div>
 
-      {/* RIGHT SIDE */}
-      <div className="flex items-center justify-center p-6">
-        <Card className="w-full max-w-md">
+      {/* Lado direito */}
+      <div className="flex items-center justify-center p-6 bg-linear-to-br from-slate-300 to-slate-100">
+        <Card className="w-full max-w-sm">
           
           <CardHeader>
             <CardTitle>Criar conta</CardTitle>
@@ -103,16 +137,26 @@ export default function RegisterPage() {
 
             {/* ROLE */}
             <Tabs
-              defaultValue="autor"
+              value={role}
               onValueChange={(value) => {
-                setRole(value as any)
-                setValue("role", value as any)
+                const next = value as UserRole;
+                setRole(next);
+                setValue("role", next);
               }}
             >
-              <TabsList className="grid grid-cols-3">
-                <TabsTrigger value="autor">Autor</TabsTrigger>
-                <TabsTrigger value="avaliador">Avaliador</TabsTrigger>
-                <TabsTrigger value="editor">Editor</TabsTrigger>
+              <TabsList className="grid grid-cols-2">
+                <TabsTrigger
+                  value={USER_ROLES[0]}
+                  className="data-[state=active]:bg-slate-600 data-[state=active]:text-white"
+                >
+                  Visitante
+                </TabsTrigger>
+                <TabsTrigger
+                  value={USER_ROLES[1]}
+                  className="data-[state=active]:bg-slate-600 data-[state=active]:text-white"
+                >
+                  Colaborador
+                </TabsTrigger>
               </TabsList>
             </Tabs>
 
@@ -133,40 +177,6 @@ export default function RegisterPage() {
                 <p className="text-red-500 text-sm">{errors.email.message}</p>
               )}
             </div>
-
-            {/* INSTITUTION */}
-            <div>
-              <Label>Instituição</Label>
-              <Input {...register("institution")} />
-              {errors.institution && (
-                <p className="text-red-500 text-sm">
-                  {errors.institution.message}
-                </p>
-              )}
-            </div>
-
-            {/* CONDITIONAL FIELDS */}
-
-            {role === "autor" && (
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  onCheckedChange={(checked) =>
-                    setValue("isMainAuthor", !!checked)
-                  }
-                />
-                <Label>Sou autor principal (contato)</Label>
-              </div>
-            )}
-
-            {role === "avaliador" && (
-              <div>
-                <Label>Áreas de interesse</Label>
-                <Input
-                  placeholder="Ex: Qualidade de Software, IA..."
-                  {...register("expertise")}
-                />
-              </div>
-            )}
 
             {/* PASSWORD */}
             <div>
@@ -192,7 +202,7 @@ export default function RegisterPage() {
 
             {/* SUBMIT */}
             <Button
-              className="w-full"
+              className="w-full bg-slate-700"
               onClick={handleSubmit(onSubmit)}
               disabled={isSubmitting}
             >
@@ -202,7 +212,7 @@ export default function RegisterPage() {
           </CardContent>
 
           <CardFooter className="flex flex-col gap-2">
-            <Button variant="link">Já tenho conta</Button>
+            <Button variant="link" onClick={() => router.push("/login")}>Já tenho conta</Button>
           </CardFooter>
 
         </Card>

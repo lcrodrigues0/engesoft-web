@@ -18,14 +18,15 @@ import { login } from "@/services/auth.service";
 import { useRouter } from 'next/navigation';
 
 export function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(true);
 
   const router = useRouter();
 
-  async function handleLogin(){
+  async function handleLogin() {
     try {
-      await login(email, password);
+      await login(email, password, rememberMe);
 
       router.push('/dashboard');
 
@@ -42,7 +43,7 @@ export function LoginPage() {
       <div className="hidden md:flex md:items-center md:justify-end relative bg-linear-to-br from-zinc-950 to-zinc-900">
 
         <Image
-          src="/images/login-bg.png"
+          src="/images/auth/login-bg.png"
           alt="Background"
           fill
           className="object-cover opacity-20"
@@ -82,11 +83,19 @@ export function LoginPage() {
                 </div>
 
                 <div className="flex items-center space-x-2">
-                  <Checkbox />
-                  <Label>Lembrar de mim</Label>
+                  <Checkbox
+                    id="remember-me"
+                    checked={rememberMe}
+                    onCheckedChange={(v) => setRememberMe(v === true)}
+                  />
+                  <Label htmlFor="remember-me" className="cursor-pointer font-normal">
+                    Lembrar de mim
+                  </Label>
                 </div>
 
-                <Button className="w-full bg-slate-700">Entrar</Button>
+                <Button type="submit" className="w-full bg-slate-700">
+                  Entrar
+                </Button>
               </CardContent>
             </form>
 

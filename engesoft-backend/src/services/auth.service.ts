@@ -19,7 +19,7 @@ export const authService = {
             throw new Error('Invalid credentials');
         }
 
-        const accessToken = generateAccessToken(user.id);
+        const accessToken = generateAccessToken(user.id, user.role);
         const refreshToken = generateRefreshToken(user.id);
 
         await userRepository.saveRefreshToken(
