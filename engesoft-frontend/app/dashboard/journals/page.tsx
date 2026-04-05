@@ -1,34 +1,5 @@
 import { JournalEditionCard } from "@/components/journals/journal-edition-card";
-
-const editions: {
-  title: string;
-  period: string;
-  badge: string;
-  coverSrc: string;
-  coverAlt?: string;
-}[] = [
-  {
-    title: "Qualidade de Software",
-    period: "Abril/2026 • v.12 n.4",
-    badge: "8 artigos",
-    coverSrc: "https://res.cloudinary.com/dnxmt9urd/image/upload/v1775354640/samples/zoom.avif",
-    coverAlt: "Capa da revista Qualidade de Software, abril 2026",
-  },
-  {
-    title: "Engenharia de Dados",
-    period: "Março/2026 • v.12 n.3",
-    badge: "12 artigos",
-    coverSrc: "https://res.cloudinary.com/dnxmt9urd/image/upload/v1775357990/Gemini_Generated_Image_k3iiwgk3iiwgk3ii_pqafap.png",
-    coverAlt: "Capa da revista Engenharia de Dados, março 2026",
-  },
-  {
-    title: "Inteligência Artificial aplicada",
-    period: "Fevereiro/2026 • v.12 n.2",
-    badge: "6 artigos",
-    coverSrc: "https://res.cloudinary.com/dnxmt9urd/image/upload/v1775358263/Gemini_Generated_Image_caadjlcaadjlcaad_zgzeox.png",
-    coverAlt: "Capa da revista Inteligência Artificial aplicada, fevereiro 2026",
-  },
-];
+import { editionToCardProps, journalEditions } from "@/lib/journals/editions";
 
 export default function JournalsEditionsPage() {
   return (
@@ -41,16 +12,20 @@ export default function JournalsEditionsPage() {
         </header>
 
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          {editions.map((edition) => (
-            <JournalEditionCard
-              key={edition.title}
-              title={edition.title}
-              period={edition.period}
-              badge={edition.badge}
-              coverSrc={edition.coverSrc}
-              coverAlt={edition.coverAlt}
-            />
-          ))}
+          {journalEditions.map((edition) => {
+            const card = editionToCardProps(edition);
+            return (
+              <JournalEditionCard
+                key={edition.id}
+                title={card.title}
+                period={card.period}
+                badge={card.badge}
+                coverSrc={card.coverSrc}
+                coverAlt={card.coverAlt}
+                viewHref={card.viewHref}
+              />
+            );
+          })}
         </div>
       </div>
     </div>

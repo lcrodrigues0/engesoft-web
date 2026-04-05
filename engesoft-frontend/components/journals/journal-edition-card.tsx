@@ -1,8 +1,7 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import Link from "next/link";
 
 export interface JournalEditionCardProps {
   title: string;
@@ -10,7 +9,8 @@ export interface JournalEditionCardProps {
   badge: string;
   coverSrc: string;
   coverAlt?: string;
-  onView?: () => void;
+  /** Rota ao clicar em Visualizar (ex.: `/dashboard/journals/vol12n4-...`) */
+  viewHref: string;
 }
 
 export function JournalEditionCard({
@@ -19,7 +19,7 @@ export function JournalEditionCard({
   badge,
   coverSrc,
   coverAlt,
-  onView,
+  viewHref,
 }: JournalEditionCardProps) {
   const alt = coverAlt ?? `Capa da edição: ${title}`;
 
@@ -61,12 +61,11 @@ export function JournalEditionCard({
       </div>
       <div className="border-t border-slate-700/80 bg-zinc-950/40 p-3">
         <Button
-          type="button"
           variant="outline"
           className="w-full cursor-pointer border-slate-600 bg-slate-800/40 text-slate-100 hover:bg-slate-700 hover:text-white"
-          onClick={onView}
+          asChild
         >
-          Visualizar
+          <Link href={viewHref}>Visualizar</Link>
         </Button>
       </div>
     </article>
