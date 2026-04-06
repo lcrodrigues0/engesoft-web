@@ -17,15 +17,22 @@ import {
 } from "@/lib/viacep";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { toast } from 'sonner';
+import { Plus } from 'lucide-react'
 
-type AuthorCtaCardProps = {
+import {
+  ExpertiseAreaId,
+  expertiseAreas,
+} from "@/lib/reviewers/reviewer-expertise-areas";
+
+type ReviewerCtaCardProps = {
   className?: string;
 };
 
-export function AuthorCtaCard({ className }: AuthorCtaCardProps) {
+export function ReviwerCtaCard({ className }: ReviewerCtaCardProps) {
   const router = useRouter();
+  const expertiseFormId = useId();
   const [open, setOpen] = useState(false);
   const [institutionName, setInstitutionName] = useState("");
   const [street, setStreet] = useState("");
@@ -38,6 +45,11 @@ export function AuthorCtaCard({ className }: AuthorCtaCardProps) {
   const [error, setError] = useState<string | null>(null);
   const [cepLoading, setCepLoading] = useState(false);
   const [cepLookupError, setCepLookupError] = useState<string | null>(null);
+
+  const [expertiseAreasIds, setExpertiseAreasIds] = useState<ExpertiseAreaId[]>(
+    [ExpertiseAreaId.Empty],
+  );
+
 
   const cepDigits = normalizeCepDigits(zip);
 
@@ -81,10 +93,12 @@ export function AuthorCtaCard({ className }: AuthorCtaCardProps) {
 
   function handleOpenChange(next: boolean) {
     setOpen(next);
+
     if (!next) {
       setError(null);
       setCepLookupError(null);
       setCepLoading(false);
+      setExpertiseAreasIds([ExpertiseAreaId.Empty]);
     }
   }
 
@@ -135,16 +149,28 @@ export function AuthorCtaCard({ className }: AuthorCtaCardProps) {
       setError("Informe a UF com 2 letras (ex.: SP).");
       return;
     }
+    if (
+      expertiseAreasIds.length === 0 ||
+      expertiseAreasIds.some((id) => id === ExpertiseAreaId.Empty)
+    ) {
+      setError("Selecione um tema de habilitação em cada linha.");
+      return;
+    }
 
     setError(null);
     setOpen(false);
     setInstitutionName("");
     resetAddressFields();
+    setExpertiseAreasIds([ExpertiseAreaId.Empty]);
 
-    toast.success("Cadastro como autor realizado com sucesso!", {
+    toast.success("Cadastro como avaliador realizado com sucesso!", {
       description: "Você já está habilitado a submeter artigos. Acesse a aba Artigos para isso."
     })
     router.push("/dashboard");
+  }
+
+  function addExpertiseAreas() {
+    setExpertiseAreasIds((prev) => [...prev, ExpertiseAreaId.Empty]);
   }
 
   return (
@@ -155,17 +181,17 @@ export function AuthorCtaCard({ className }: AuthorCtaCardProps) {
           "bg-slate-100/95 px-6 py-10 text-center shadow-sm ring-1 ring-slate-200/60 md:px-10 md:py-12",
           className,
         )}
-        aria-labelledby="author-cta-heading"
+        aria-labelledby="reviewer-cta-heading"
       >
         <h2
-          id="author-cta-heading"
+          id="reviewer-cta-heading"
           className="text-2xl font-bold tracking-tight text-slate-900 md:text-3xl"
         >
-          Seja um Autor na EngeSoft
+          Seja um Avaliador na EngeSoft
         </h2>
         <p className="mx-auto mt-4 max-w-lg text-pretty text-base leading-relaxed text-slate-800 md:text-lg">
-          Sua pesquisa merece destaque. Cadastre-se como autor e submeta seus
-          artigos sobre os temas mais atuais da engenharia de software.
+          Contribua com a comunidade científica. 
+          Conclua seu cadastro e habilite-se para avaliar artigos dentro de suas áreas de domínio.
         </p>
         <Button
           type="button"
@@ -173,7 +199,7 @@ export function AuthorCtaCard({ className }: AuthorCtaCardProps) {
           className="mt-8 rounded-full bg-slate-800 px-8 text-slate-50 hover:bg-slate-900"
           onClick={() => setOpen(true)}
         >
-          Realizar Cadastro como Autor
+          Realizar Cadastro como Avaliador
         </Button>
       </section>
 
@@ -184,11 +210,10 @@ export function AuthorCtaCard({ className }: AuthorCtaCardProps) {
         >
           <DialogHeader className="shrink-0 gap-1.5 border-b border-border/60 px-4 pb-3 pt-4 pr-12">
             <DialogTitle className="text-xl font-semibold leading-tight">
-              Cadastro como autor
+              Cadastro como avaliador
             </DialogTitle>
             <DialogDescription className="text-base leading-snug">
-              Confirme que deseja se cadastrar como autor para submeter artigos e preencha os
-              dados da sua instituição.
+                Confirme seu interesse em atuar como colaborador na avaliação de artigos e indique os temas de sua especialidade.
             </DialogDescription>
           </DialogHeader>
 
@@ -197,8 +222,8 @@ export function AuthorCtaCard({ className }: AuthorCtaCardProps) {
           >
             <div className="space-y-2.5 text-left text-base leading-relaxed text-slate-700 sm:text-sm">
               <p>
-                Deseja se cadastrar como <strong className="text-slate-900">autor</strong> na
-                EngeSoft para <strong className="text-slate-900">submeter artigos</strong> à
+                Deseja se cadastrar como <strong className="text-slate-900">avaliador</strong> na
+                EngeSoft para <strong className="text-slate-900">realizar avaliação dos artigos</strong> para a
                 revista?
               </p>
               <p className="text-muted-foreground">
@@ -208,11 +233,11 @@ export function AuthorCtaCard({ className }: AuthorCtaCardProps) {
 
             <div className="mt-4 grid gap-3.5 mb-5">
               <div className="grid gap-1.5">
-                <Label htmlFor="author-institution-name" className="text-xs sm:text-base">
+                <Label htmlFor="reviewer-institution-name" className="text-xs sm:text-base">
                   Nome da instituição
                 </Label>
                 <Input
-                  id="author-institution-name"
+                  id="reviewer-institution-name"
                   className="h-9 text-base"
                   value={institutionName}
                   onChange={(e) => setInstitutionName(e.target.value)}
@@ -227,11 +252,11 @@ export function AuthorCtaCard({ className }: AuthorCtaCardProps) {
 
                 <div className="grid gap-3 sm:grid-cols-6 sm:items-start">
                   <div className="grid gap-1.5 sm:col-span-2">
-                    <Label htmlFor="author-inst-cep" className="text-xs sm:text-sm">
+                    <Label htmlFor="reviewer-inst-cep" className="text-xs sm:text-sm">
                       CEP
                     </Label>
                     <Input
-                      id="author-inst-cep"
+                      id="reviewer-inst-cep"
                       className="h-9 text-sm"
                       value={zip}
                       onChange={(e) => setZip(formatCepDisplay(e.target.value))}
@@ -244,11 +269,11 @@ export function AuthorCtaCard({ className }: AuthorCtaCardProps) {
                     />
                   </div>
                   <div className="grid gap-1.5 sm:col-span-4">
-                    <Label htmlFor="author-inst-street" className="text-xs sm:text-sm">
+                    <Label htmlFor="reviewer-inst-street" className="text-xs sm:text-sm">
                       Logradouro
                     </Label>
                     <Input
-                      id="author-inst-street"
+                      id="reviewer-inst-street"
                       className="h-9 text-sm"
                       value={street}
                       onChange={(e) => setStreet(e.target.value)}
@@ -270,11 +295,11 @@ export function AuthorCtaCard({ className }: AuthorCtaCardProps) {
 
                 <div className="grid gap-3 sm:grid-cols-6 sm:items-start">
                   <div className="grid gap-1.5 sm:col-span-2">
-                    <Label htmlFor="author-inst-number" className="text-xs sm:text-sm">
+                    <Label htmlFor="reviewer-inst-number" className="text-xs sm:text-sm">
                       Número
                     </Label>
                     <Input
-                      id="author-inst-number"
+                      id="reviewer-inst-number"
                       className="h-9 text-sm"
                       value={number}
                       onChange={(e) => setNumber(e.target.value)}
@@ -282,12 +307,12 @@ export function AuthorCtaCard({ className }: AuthorCtaCardProps) {
                     />
                   </div>
                   <div className="grid gap-1.5 sm:col-span-4">
-                    <Label htmlFor="author-inst-complement" className="text-xs sm:text-sm">
+                    <Label htmlFor="reviewer-inst-complement" className="text-xs sm:text-sm">
                       Complemento{" "}
                       <span className="font-normal text-muted-foreground">(opcional)</span>
                     </Label>
                     <Input
-                      id="author-inst-complement"
+                      id="reviewer-inst-complement"
                       className="h-9 text-sm"
                       value={complement}
                       onChange={(e) => setComplement(e.target.value)}
@@ -298,22 +323,22 @@ export function AuthorCtaCard({ className }: AuthorCtaCardProps) {
 
                 <div className="grid gap-3 sm:grid-cols-6 sm:items-start">
                   <div className="grid gap-1.5 sm:col-span-2">
-                    <Label htmlFor="author-inst-neighborhood" className="text-xs sm:text-sm">
+                    <Label htmlFor="reviewer-inst-neighborhood" className="text-xs sm:text-sm">
                       Bairro
                     </Label>
                     <Input
-                      id="author-inst-neighborhood"
+                      id="reviewer-inst-neighborhood"
                       className="h-9 text-sm"
                       value={neighborhood}
                       onChange={(e) => setNeighborhood(e.target.value)}
                     />
                   </div>
                   <div className="grid gap-1.5 sm:col-span-3">
-                    <Label htmlFor="author-inst-city" className="text-xs sm:text-sm">
+                    <Label htmlFor="reviewer-inst-city" className="text-xs sm:text-sm">
                       Cidade
                     </Label>
                     <Input
-                      id="author-inst-city"
+                      id="reviewer-inst-city"
                       className="h-9 text-sm"
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
@@ -321,11 +346,11 @@ export function AuthorCtaCard({ className }: AuthorCtaCardProps) {
                     />
                   </div>
                   <div className="grid gap-1.5 sm:col-span-1">
-                    <Label htmlFor="author-inst-uf" className="text-xs sm:text-sm">
+                    <Label htmlFor="reviewer-inst-uf" className="text-xs sm:text-sm">
                       UF
                     </Label>
                     <Input
-                      id="author-inst-uf"
+                      id="reviewer-inst-uf"
                       className="h-9 text-sm uppercase"
                       value={stateUf}
                       onChange={(e) => setStateUf(e.target.value.slice(0, 2).toUpperCase())}
@@ -335,6 +360,64 @@ export function AuthorCtaCard({ className }: AuthorCtaCardProps) {
                     />
                   </div>
                 </div>
+
+                <div className="grid gap-1.5">
+                    <p className="text-muted-foreground">
+                        Selecione abaixo os temas para os quais você possui expertise técnica. 
+                        Essas informações serão utilizadas para a distribuição automática dos artigos submetidos à revista.
+                    </p>
+                    
+                    <div className="flex justify-between">
+                        <Label className="text-xs sm:text-base">
+                            Temas de habilitação
+                        </Label>
+
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="gap-1"
+                            onClick={addExpertiseAreas}
+                            >
+                            <Plus className="size-3.5" aria-hidden />
+                            Adicionar tema
+                        </Button>
+                    </div>
+                    
+                    <ul className="list-none space-y-3 pl-0">
+                        {expertiseAreasIds.map((selectedId, index) => (
+                            <li
+                                key={`${expertiseFormId}-row-${index}`}
+                                className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:bg-slate-900/30"
+                            >
+                                <select
+                                    id={`${expertiseFormId}-expertise-${index}`}
+                                    className={cn(
+                                        "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs",
+                                        "outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50",
+                                    )}
+                                    value={selectedId}
+                                    onChange={(e) => {
+                                      const v = e.target.value as ExpertiseAreaId;
+                                      setExpertiseAreasIds((prev) => {
+                                        const next = [...prev];
+                                        next[index] = v;
+                                        return next;
+                                      });
+                                    }}
+                                    aria-label={`Tema de habilitação ${index + 1}`}
+                                >
+                                    {expertiseAreas.map((t) => (
+                                        <option key={t.id} value={t.id}>
+                                            {t.label}
+                                        </option>
+                                    ))}
+                                </select>
+                            </li>
+                        ))}
+                    </ul>
+                 </div>
+                
               </fieldset>
               {error ? <p className="text-xs text-red-600 sm:text-sm">{error}</p> : null}
             </div>
