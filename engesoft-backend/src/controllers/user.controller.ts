@@ -29,4 +29,25 @@ export const userController = {
             return res.status(500).json({ message: 'Erro interno do servidor.' });
         }
     },
+
+    async me(req: Request, res: Response) {
+        const userId = req.userId;
+
+        if (!userId) {
+            return res.status(401).json({ message: 'Não autenticado.' });
+        }
+
+        try {
+            const user = await userService.getAuthUserById(userId);
+
+            if (!user) {
+                return res.status(404).json({ message: 'Usuário não encontrado.' });
+            }
+
+            return res.status(200).json(user);
+        } catch (err) {
+            console.error(err);
+            return res.status(500).json({ message: 'Erro interno do servidor.' });
+        }
+    },
 };

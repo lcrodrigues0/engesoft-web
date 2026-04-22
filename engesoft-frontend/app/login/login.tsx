@@ -16,6 +16,7 @@ import Image from "next/image"
 import { useState } from "react";
 import { login } from "@/services/auth.service";
 import { useRouter } from 'next/navigation';
+import { useAuth } from "@/contexts/AuthContext";
 
 export function LoginPage() {
   const [email, setEmail] = useState("");
@@ -24,9 +25,14 @@ export function LoginPage() {
 
   const router = useRouter();
 
+  const { setAuthenticated, refreshUser } = useAuth();
+
   async function handleLogin() {
     try {
       await login(email, password, rememberMe);
+
+      setAuthenticated(true);
+      await refreshUser();
 
       router.push('/dashboard');
 

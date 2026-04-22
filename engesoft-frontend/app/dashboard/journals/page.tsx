@@ -3,7 +3,7 @@ import { editionToCardProps, journalEditions } from "@/lib/journals/editions";
 
 export default function JournalsEditionsPage() {
   return (
-    <div className="-m-6 min-h-[calc(100dvh-3.5rem)] bg-slate-100 p-6 md:p-8">
+    <div className="-m-6 min-h-[calc(100dvh-3.5rem)] bg-slate-100 p-5 md:p-8">
       <div className="mx-auto max-w-7xl">
         <header className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-xl font-bold tracking-tight text-slate-800 md:text-3xl">

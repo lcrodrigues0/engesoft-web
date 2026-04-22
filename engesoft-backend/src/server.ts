@@ -15,6 +15,34 @@ app.use(cors({
 
 app.use(express.json())
 
+function authenticate(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: 'Token não informado.' });
+    }
+
+    const token = authHeader.split(' ')[1];
+
+    if (!token) {
+        return res.status(401).json({ message: 'Token inválido.' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { userId?: string; id?: string };
+        const userId = decoded.userId ?? decoded.id;
+
+        if (!userId) {
+            return res.status(401).json({ message: 'Token inválido.' });
+        }
+
+        req.userId = userId;
+        return next();
+    } catch {
+        return res.status(401).json({ message: 'Token inválido.' });
+    }
+}
+
 
 app.get('/', (req, res) => {
     res.status(200).json({
@@ -25,6 +53,8 @@ app.get('/', (req, res) => {
 });
 
 app.post('/register', (req, res) => userController.register(req, res));
+
+app.get('/me', authenticate, (req, res) => userController.me(req, res));
 
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;

@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
-import { logout } from "@/services/auth.service";
 import {
   Bell,
   BookOpen,
@@ -109,7 +108,24 @@ const sidebarTheme = {
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { setAuthenticated } = useAuth();
+
+  const { logoutAndClear, user } = useAuth();
+
+  const displayName = user?.name ?? "Usuário";
+  const roleLabel =
+    user?.role === "CONTRIBUTOR"
+      ? "Colaborador"
+      : user?.role === "GUEST"
+        ? "Assinante"
+        : "Usuário";
+
+  const initials = displayName
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("") || "US";
+
 
   const currentPageLabel = useMemo(() => {
     const active = nav.find((item) =>
@@ -119,9 +135,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   }, [pathname]);
 
   function handleLogout() {
-    logout();
-    setAuthenticated(false);
-    router.replace("/login");
+    logoutAndClear()
+    router.replace("/login")
   }
 
   return (
@@ -202,16 +217,16 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                 <div className="flex items-center gap-2">
                   <Avatar className="h-8 w-8">
                     <AvatarFallback className="bg-blue-500 text-white text-xs">
-                      JS
+                      {initials}
                     </AvatarFallback>
                   </Avatar>
 
                   <div className="hidden md:block leading-tight">
                     <p className="text-xs font-medium text-white">
-                      João da Silva
+                      {displayName}
                     </p>
                     <p className="text-[11px] text-slate-400">
-                      Assinante
+                      {roleLabel}
                     </p>
                   </div>
 

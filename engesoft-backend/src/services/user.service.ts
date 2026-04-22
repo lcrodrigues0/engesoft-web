@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import { ConflictError } from '../errors/conflict.error';
 import { userRepository } from '../repositories/user.repository';
 import type { RegisterUserInput } from '../schemas/user.schema';
+import type { AuthUser } from '../types/auth-user';
 
 const SALT_ROUNDS = Number(process.env.BCRYPT_SALT_ROUNDS) || 10;
 
@@ -22,5 +23,9 @@ export const userService = {
         const password = await bcrypt.hash(input.password, SALT_ROUNDS);
 
         return userRepository.create({ name, email, password, role });
+    },
+
+    async getAuthUserById(userId: string): Promise<AuthUser | null> {
+        return userRepository.findAuthUserById(userId);
     },
 };
