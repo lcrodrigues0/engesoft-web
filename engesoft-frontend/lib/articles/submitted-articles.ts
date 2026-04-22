@@ -18,6 +18,10 @@ export type SubmittedArticle = {
   journalName: string;
   /** Data da submissão (ISO 8601) */
   submittedAt: string;
+  /**
+   * Modo avaliador: quantas das três avaliações obrigatórias já foram concluídas (mock).
+   */
+  completedPeerReviews?: number;
   /** Nomes para exibição na lista (ex.: "Silva, A." ou com marcação de contato) */
   authors: string[];
   /** Detalhes por autor (quando disponível) */
@@ -64,6 +68,7 @@ export const submittedArticles: SubmittedArticle[] = [
     title: "Métricas de qualidade em pipelines DevOps",
     status: "under_review",
     journalName: "Qualidade de Software",
+    completedPeerReviews: 2,
     submittedAt: "2026-03-18T14:22:00.000Z",
     authors: authorsFromRef("Silva, A.; Costa, B."),
     fileName: "metricas-devops-v2.pdf",
@@ -74,6 +79,7 @@ export const submittedArticles: SubmittedArticle[] = [
     title: "Revisão sistemática sobre dívida técnica",
     status: "approved",
     journalName: "Qualidade de Software",
+    completedPeerReviews: 3,
     submittedAt: "2026-02-02T09:15:00.000Z",
     authors: authorsFromRef("Santos, D.; Lima, E."),
     fileName: "revisao-divida-tecnica.pdf",
@@ -84,6 +90,7 @@ export const submittedArticles: SubmittedArticle[] = [
     title: "Lakehouse com Delta e Spark",
     status: "rejected",
     journalName: "Engenharia de Dados",
+    completedPeerReviews: 3,
     submittedAt: "2026-01-20T16:40:00.000Z",
     authors: authorsFromRef("Barbosa, P."),
     fileName: "lakehouse-delta-spark.pdf",
@@ -94,6 +101,7 @@ export const submittedArticles: SubmittedArticle[] = [
     title: "Governança de metadados corporativos",
     status: "under_review",
     journalName: "Engenharia de Dados",
+    completedPeerReviews: 1,
     submittedAt: "2026-03-05T11:08:00.000Z",
     authors: authorsFromRef("Nunes, S."),
     fileName: "governanca-metadados-final.pdf",
@@ -104,6 +112,7 @@ export const submittedArticles: SubmittedArticle[] = [
     title: "LLMs em suporte ao cliente: limites éticos",
     status: "approved",
     journalName: "Inteligência Artificial aplicada",
+    completedPeerReviews: 3,
     submittedAt: "2025-12-12T13:55:00.000Z",
     authors: authorsFromRef("Reis, AE."),
     fileName: "llms-suporte-cliente.pdf",
@@ -114,6 +123,7 @@ export const submittedArticles: SubmittedArticle[] = [
     title: "RAG para documentação técnica interna",
     status: "under_review",
     journalName: "Inteligência Artificial aplicada",
+    completedPeerReviews: 0,
     submittedAt: "2026-03-22T08:30:00.000Z",
     authors: authorsFromRef("Fonseca, AI.; Matos, AJ."),
     fileName: "rag-doc-interna.pdf",
@@ -124,6 +134,7 @@ export const submittedArticles: SubmittedArticle[] = [
     title: "Qualidade percebida em APIs REST públicas",
     status: "rejected",
     journalName: "Qualidade de Software",
+    completedPeerReviews: 3,
     submittedAt: "2025-11-03T10:00:00.000Z",
     authors: authorsFromRef("Almeida, G.; Rocha, H."),
     fileName: "qualidade-apis-rest.pdf",

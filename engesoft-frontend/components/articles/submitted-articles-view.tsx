@@ -9,33 +9,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  articleStatusLabels,
   formatSubmissionDate,
   formatSubmissionDateTime,
-  type ArticleSubmissionStatus,
   type SubmittedArticle,
 } from "@/lib/articles/submitted-articles";
-import { cn } from "@/lib/utils";
 import { ExternalLink, FileText } from "lucide-react";
 import { useMemo, useState } from "react";
-
-function StatusBadge({ status }: { status: ArticleSubmissionStatus }) {
-  return (
-    <span
-      className={cn(
-        "inline-flex shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset",
-        status === "approved" &&
-          "bg-emerald-50 text-emerald-800 ring-emerald-600/20 dark:bg-emerald-950/40 dark:text-emerald-200",
-        status === "rejected" &&
-          "bg-red-50 text-red-800 ring-red-600/20 dark:bg-red-950/40 dark:text-red-200",
-        status === "under_review" &&
-          "bg-amber-50 text-amber-900 ring-amber-600/25 dark:bg-amber-950/40 dark:text-amber-100",
-      )}
-    >
-      {articleStatusLabels[status]}
-    </span>
-  );
-}
+import { ArticleStatusBadge } from "./article-status-badge";
 
 type SubmittedArticlesViewProps = {
   articles: SubmittedArticle[];
@@ -89,7 +69,7 @@ export function SubmittedArticlesView({ articles }: SubmittedArticlesViewProps) 
                     </button>
                   </td>
                   <td className="px-4 py-3 align-top">
-                    <StatusBadge status={article.status} />
+                    <ArticleStatusBadge status={article.status} />
                   </td>
                   <td className="px-4 py-3 align-top text-slate-700">{article.journalName}</td>
                   <td className="whitespace-nowrap px-4 py-3 align-top text-slate-600">
@@ -113,7 +93,7 @@ export function SubmittedArticlesView({ articles }: SubmittedArticlesViewProps) 
                   <span className="font-mono text-xs font-semibold text-slate-800">
                     {article.publicId}
                   </span>
-                  <StatusBadge status={article.status} />
+                  <ArticleStatusBadge status={article.status} />
                 </div>
                 <p className="mt-2 font-medium text-slate-900">{article.title}</p>
                 <p className="mt-1 text-sm text-slate-600">{article.journalName}</p>
@@ -128,7 +108,7 @@ export function SubmittedArticlesView({ articles }: SubmittedArticlesViewProps) 
 
       <Dialog open={selected !== null} onOpenChange={(open) => !open && setSelected(null)}>
         <DialogContent
-          className="flex max-h-[min(90dvh,40rem)] max-w-[calc(100%-2rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-lg md:max-w-xl"
+          className="flex max-h-[min(90dvh,40rem)] max-w-[calc(100%-2rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-lg"
           showCloseButton
         >
           {selected ? (
@@ -189,7 +169,7 @@ export function SubmittedArticlesView({ articles }: SubmittedArticlesViewProps) 
                   </p>
                   <p>
                     <span className="font-medium text-slate-900">Status:</span>{" "}
-                    <StatusBadge status={selected.status} />
+                    <ArticleStatusBadge status={selected.status} />
                   </p>
                   <p>
                     <span className="font-medium text-slate-900">Data da submissão:</span>{" "}

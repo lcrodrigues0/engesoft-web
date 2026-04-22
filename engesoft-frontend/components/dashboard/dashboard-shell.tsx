@@ -18,7 +18,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { logout } from "@/services/auth.service";
-import { BookOpen, ClipboardCheck, FileText, LayoutDashboard } from "lucide-react";
+import { BookOpen, ClipboardCheck, FileText, LayoutDashboard, ListChecks } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -27,6 +27,7 @@ const nav = [
   { href: "/dashboard/journals", label: "Edições de revistas", icon: BookOpen },
   { href: "/dashboard/articles", label: "Artigos", icon: FileText },
   { href: "/dashboard/reviews", label: "Avaliações", icon: ClipboardCheck },
+  { href: "/dashboard/selections", label: "Seleções", icon: ListChecks },
 ] as const;
 
 function isActive(pathname: string, href: string, end?: boolean) {

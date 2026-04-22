@@ -30,7 +30,7 @@ type ReviewerCtaCardProps = {
   className?: string;
 };
 
-export function ReviwerCtaCard({ className }: ReviewerCtaCardProps) {
+export function ReviewerCtaCard({ className }: ReviewerCtaCardProps) {
   const router = useRouter();
   const expertiseFormId = useId();
   const [open, setOpen] = useState(false);
@@ -177,26 +177,25 @@ export function ReviwerCtaCard({ className }: ReviewerCtaCardProps) {
     <>
       <section
         className={cn(
-          "w-full max-w-xl rounded-2xl border border-slate-200/90",
-          "bg-slate-100/95 px-6 py-10 text-center shadow-sm ring-1 ring-slate-200/60 md:px-10 md:py-12",
+          "w-full max-w-lg rounded-2xl border border-slate-200/90",
+          "bg-slate-100/95 px-5 py-7 text-center shadow-sm ring-1 ring-slate-200/60 md:px-8 md:py-9",
           className,
         )}
         aria-labelledby="reviewer-cta-heading"
       >
         <h2
           id="reviewer-cta-heading"
-          className="text-2xl font-bold tracking-tight text-slate-900 md:text-3xl"
+          className="text-xl font-bold tracking-tight text-slate-900 md:text-2xl"
         >
           Seja um Avaliador na EngeSoft
         </h2>
-        <p className="mx-auto mt-4 max-w-lg text-pretty text-base leading-relaxed text-slate-800 md:text-lg">
+        <p className="mx-auto mt-3 max-w-md text-pretty text-sm leading-relaxed text-slate-800 md:text-base">
           Contribua com a comunidade científica. 
           Conclua seu cadastro e habilite-se para avaliar artigos dentro de suas áreas de domínio.
         </p>
         <Button
           type="button"
-          size="lg"
-          className="mt-8 rounded-full bg-slate-800 px-8 text-slate-50 hover:bg-slate-900"
+          className="mt-6 rounded-full bg-slate-800 px-6 py-2 text-sm font-medium text-slate-50 hover:bg-slate-900 md:text-base"
           onClick={() => setOpen(true)}
         >
           Realizar Cadastro como Avaliador
