@@ -45,12 +45,48 @@ import {
 } from "@/components/ui/avatar";
 
 const nav = [
-  { href: "/dashboard", label: "Painel", icon: LayoutDashboard, end: true },
-  { href: "/dashboard/journals", label: "Edições de revistas", icon: BookOpen },
-  { href: "/dashboard/articles", label: "Artigos", icon: FileText },
-  { href: "/dashboard/reviews", label: "Avaliações", icon: ClipboardCheck },
-  { href: "/dashboard/subscriptions", label: "Assinaturas", icon: Newspaper },
-  { href: "/dashboard/selections", label: "Seleções", icon: ListChecks },
+  {
+    href: "/dashboard",
+    label: "Painel",
+    title: "Painel",
+    icon: LayoutDashboard,
+    end: true,
+  },
+  {
+    href: "/dashboard/journals",
+    label: "Edições de revistas",
+    title: "Edições de revistas",
+    icon: BookOpen,
+    end: false,
+  },
+  {
+    href: "/dashboard/articles",
+    label: "Artigos",
+    title: "Artigos",
+    icon: FileText,
+    end: false,
+  },
+  {
+    href: "/dashboard/reviews",
+    label: "Avaliações",
+    title: "Avaliações",
+    icon: ClipboardCheck,
+    end: false,
+  },
+  {
+    href: "/dashboard/subscriptions",
+    label: "Assinaturas",
+    title: "Minha Assinatura",
+    icon: Newspaper,
+    end: false,
+  },
+  {
+    href: "/dashboard/selections",
+    label: "Seleções",
+    title: "Seleções",
+    icon: ListChecks,
+    end: false,
+  },
 ] as const;
 
 function isActive(pathname: string, href: string, end?: boolean) {
@@ -74,10 +110,12 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const { setAuthenticated } = useAuth();
+
   const currentPageLabel = useMemo(() => {
-    const active = nav.find((item) => isActive(pathname, item.href, "end" in item ? item.end : false));
-    if (!active) return "Minha Assinatura";
-    return active.href === "/dashboard" ? "Painel" : `Minha ${active.label.slice(0, -1)}`;
+    const active = nav.find((item) =>
+      isActive(pathname, item.href, item.end ?? false)
+    );
+    return active?.title ?? "Minha Assinatura";
   }, [pathname]);
 
   function handleLogout() {
