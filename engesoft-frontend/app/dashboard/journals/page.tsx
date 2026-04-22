@@ -3,10 +3,10 @@ import { editionToCardProps, journalEditions } from "@/lib/journals/editions";
 
 export default function JournalsEditionsPage() {
   return (
-    <div className="-m-6 min-h-[calc(100dvh-3.5rem)] bg-linear-to-br from-slate-300 to-slate-100 p-6 md:p-8">
-      <div className="mx-auto max-w-6xl">
+    <div className="-m-6 min-h-[calc(100dvh-3.5rem)] bg-slate-100 p-6 md:p-8">
+      <div className="mx-auto max-w-7xl">
         <header className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <h1 className="text-xl font-bold tracking-tight text-slate-800 md:text-2xl">
+          <h1 className="text-xl font-bold tracking-tight text-slate-800 md:text-3xl">
             Todas edições
           </h1>
         </header>

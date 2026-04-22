@@ -18,15 +18,38 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { logout } from "@/services/auth.service";
-import { BookOpen, ClipboardCheck, FileText, LayoutDashboard, ListChecks } from "lucide-react";
+import {
+  Bell,
+  BookOpen,
+  ChevronDown,
+  ClipboardCheck,
+  FileText,
+  LayoutDashboard,
+  ListChecks,
+  Newspaper,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useMemo } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+import {
+  Avatar,
+  AvatarFallback,
+} from "@/components/ui/avatar";
 
 const nav = [
   { href: "/dashboard", label: "Painel", icon: LayoutDashboard, end: true },
   { href: "/dashboard/journals", label: "Edições de revistas", icon: BookOpen },
   { href: "/dashboard/articles", label: "Artigos", icon: FileText },
   { href: "/dashboard/reviews", label: "Avaliações", icon: ClipboardCheck },
+  { href: "/dashboard/subscriptions", label: "Assinaturas", icon: Newspaper },
   { href: "/dashboard/selections", label: "Seleções", icon: ListChecks },
 ] as const;
 
@@ -51,6 +74,11 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const { setAuthenticated } = useAuth();
+  const currentPageLabel = useMemo(() => {
+    const active = nav.find((item) => isActive(pathname, item.href, "end" in item ? item.end : false));
+    if (!active) return "Minha Assinatura";
+    return active.href === "/dashboard" ? "Painel" : `Minha ${active.label.slice(0, -1)}`;
+  }, [pathname]);
 
   function handleLogout() {
     logout();
@@ -61,7 +89,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider className="min-h-svh w-full" style={sidebarTheme}>
       <Sidebar collapsible="offcanvas">
-        <SidebarHeader className="border-b border-sidebar-border px-3 py-4" />
+        <SidebarHeader className="border-b border-sidebar-border px-7 py-3">
+            <span className="text-base font-semibold text-sidebar-foreground">EngeSoft</span>
+        </SidebarHeader>
         <SidebarContent className="gap-2 px-1">
           <SidebarGroup className="py-1">
             <SidebarGroupLabel className="text-sm font-semibold tracking-wide">
@@ -96,29 +126,78 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       </Sidebar>
 
       <SidebarInset>
-        <header
-          className={cn(
-            "flex h-14 shrink-0 items-center gap-2 border-b border-slate-600",
-            "bg-linear-to-br from-slate-800 to-slate-700 px-3 md:gap-3 md:px-4",
-          )}
-        >
+      <header
+        className={cn(
+          "flex h-14 shrink-0 items-center border-b border-slate-700",
+          "bg-linear-to-r from-slate-950 via-slate-900 to-slate-800 px-3 md:px-4"
+        )}
+      >
+        <div className="flex items-center gap-3">
           <SidebarTrigger
-            className="text-slate-50 hover:bg-slate-600/50 md:flex"
+            className="text-slate-200 hover:bg-slate-700/60"
             aria-label="Abrir menu"
           />
-          <span className="text-lg font-bold tracking-tight text-slate-50 md:text-xl">
-            EngeSoft
-          </span>
-          <Button
-            type="button"
-            className="ml-auto bg-slate-600 text-slate-50 hover:bg-slate-500 cursor-pointer"
-            onClick={handleLogout}
-          >
-            Sair
-          </Button>
-        </header>
 
-        <div className="min-h-0 flex-1 overflow-auto bg-linear-to-br from-slate-300 to-slate-100 p-6">
+          <span className="text-base font-semibold tracking-tight text-white md:text-lg">
+            {currentPageLabel}
+          </span>
+        </div>
+
+        <div className="ml-auto flex items-center gap-2">
+          {/* Notificações */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="relative text-slate-300 hover:bg-slate-700/60 hover:text-white"
+          >
+            <Bell className="size-4" />
+            <span className="absolute right-1 top-1 size-2 rounded-full bg-sky-500" />
+          </Button>
+
+          {/* Usuário */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="h-auto px-2 py-1 text-left hover:bg-slate-700/60"
+              >
+                <div className="flex items-center gap-2">
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback className="bg-blue-500 text-white text-xs">
+                      JS
+                    </AvatarFallback>
+                  </Avatar>
+
+                  <div className="hidden md:block leading-tight">
+                    <p className="text-xs font-medium text-white">
+                      João da Silva
+                    </p>
+                    <p className="text-[11px] text-slate-400">
+                      Assinante
+                    </p>
+                  </div>
+
+                  <ChevronDown className="hidden md:block size-4 text-slate-400" />
+                </div>
+              </Button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem>Perfil</DropdownMenuItem>
+              <DropdownMenuItem>Configurações</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="text-red-500"
+                onClick={handleLogout}
+              >
+                Sair
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </header>
+
+        <div className="min-h-0 flex-1 overflow-auto bg-slate-100 p-6">
           {children}
         </div>
       </SidebarInset>

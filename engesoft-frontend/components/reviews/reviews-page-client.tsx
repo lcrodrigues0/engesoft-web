@@ -8,10 +8,10 @@ export function ReviewsPageClient() {
   const [articles] = useState(() => [...initialSubmittedArticles]);
 
   return (
-    <div className="-m-6 min-h-[calc(100dvh-3.5rem)] bg-linear-to-br from-slate-300 to-slate-100 p-6 md:p-8">
-      <div className="mx-auto max-w-6xl">
+    <div className="-m-6 min-h-[calc(100dvh-3.5rem)] bg-slate-100 p-6 md:p-8">
+      <div className="mx-auto max-w-7xl">
         <header className="mb-6 max-w-3xl">
-          <h1 className="text-xl font-bold tracking-tight text-slate-800 md:text-2xl">
+          <h1 className="text-xl font-bold tracking-tight text-slate-800 md:text-3xl">
             Painel de avaliação
           </h1>
           <div className="mt-3 space-y-3 text-sm leading-relaxed text-slate-600 md:text-base">

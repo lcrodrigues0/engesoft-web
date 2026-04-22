@@ -12,11 +12,11 @@ export function ArticlesPageClient() {
   const [submitOpen, setSubmitOpen] = useState(false);
 
   return (
-    <div className="-m-6 min-h-[calc(100dvh-3.5rem)] bg-linear-to-br from-slate-300 to-slate-100 p-6 md:p-8">
-      <div className="mx-auto max-w-6xl">
+    <div className="-m-6 min-h-[calc(100dvh-3.5rem)] bg-slate-100 p-6 md:p-8">
+      <div className="mx-auto max-w-7xl">
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <header className="min-w-0">
-            <h1 className="text-xl font-bold tracking-tight text-slate-800 md:text-2xl">
+            <h1 className="text-xl font-bold tracking-tight text-slate-800 md:text-3xl">
               Artigos submetidos
             </h1>
             <p className="mt-1 max-w-2xl text-sm text-slate-600 md:text-base">

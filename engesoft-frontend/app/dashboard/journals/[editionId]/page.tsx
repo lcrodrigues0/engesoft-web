@@ -22,8 +22,8 @@ export default async function JournalEditionDetailPage({ params }: PageProps) {
   if (!edition) notFound();
 
   return (
-    <div className="-m-6 min-h-[calc(100dvh-3.5rem)] bg-linear-to-br from-slate-300 to-slate-100 p-6 md:p-8">
-      <div className="mx-auto max-w-4xl space-y-8">
+    <div className="-m-6 min-h-[calc(100dvh-3.5rem)] bg-slate-100 p-6 md:p-8">
+      <div className="mx-auto max-w-6xl space-y-8">
         <Button variant="link" className="h-auto p-0 text-sky-700 hover:text-sky-800" asChild>
           <Link href="/dashboard/journals" className="inline-flex items-center gap-2">
             <ArrowLeft className="size-4" aria-hidden />

@@ -152,7 +152,7 @@ export function AuthorCtaCard({ className }: AuthorCtaCardProps) {
       <section
         className={cn(
           "w-full max-w-lg rounded-2xl border border-slate-200/90",
-          "bg-slate-100/95 px-5 py-7 text-center shadow-sm ring-1 ring-slate-200/60 md:px-8 md:py-9",
+          "bg-white px-5 py-5 text-center shadow-sm ring-1 ring-slate-200/60 md:px-7 md:py-6", "max-h-55",
           className,
         )}
         aria-labelledby="author-cta-heading"
@@ -163,13 +163,13 @@ export function AuthorCtaCard({ className }: AuthorCtaCardProps) {
         >
           Seja um Autor na EngeSoft
         </h2>
-        <p className="mx-auto mt-3 max-w-md text-pretty text-sm leading-relaxed text-slate-800 md:text-base">
+        <p className="mx-auto mt-2 max-w-md text-pretty text-sm leading-relaxed text-slate-800 md:text-base">
           Sua pesquisa merece destaque. Cadastre-se como autor e submeta seus
           artigos sobre os temas mais atuais da engenharia de software.
         </p>
         <Button
           type="button"
-          className="mt-6 rounded-full bg-slate-800 px-6 py-2 text-sm font-medium text-slate-50 hover:bg-slate-900 md:text-base"
+          className="mt-4 rounded-full bg-slate-800 px-5 py-1.5 text-sm font-medium text-slate-50 hover:bg-slate-900 md:text-base"
           onClick={() => setOpen(true)}
         >
           Realizar Cadastro como Autor
