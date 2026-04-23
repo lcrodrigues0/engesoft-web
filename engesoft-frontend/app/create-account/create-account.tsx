@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useRouter } from "next/navigation";
 import { register as registerAccount } from "@/services/auth.service";
 import { ApiError } from "@/lib/api";
-import { USER_ROLES, type UserRole } from "@/types/user-role";
+import { USER_BASE_TYPES, type UserBaseTypes } from "@/types/user-role";
 import { toast } from "sonner"
 
 import {
@@ -32,7 +32,7 @@ import Image from "next/image"
 
 const schema = z
   .object({
-    role: z.enum(USER_ROLES),
+    baseType: z.enum(USER_BASE_TYPES),
     name: z.string().min(3, "Nome obrigatório"),
     email: z.email("Email inválido"),
     password: z.string().min(6, "Mínimo 6 caracteres"),
@@ -50,7 +50,7 @@ type FormData = z.infer<typeof schema>
 // ----------------------
 
 export default function RegisterPage() {
-  const [role, setRole] = useState<UserRole>(USER_ROLES[0])
+  const [baseType, setBaseType] = useState<UserBaseTypes>(USER_BASE_TYPES[0])
 
   const router = useRouter();
 
@@ -64,7 +64,7 @@ export default function RegisterPage() {
 
     resolver: zodResolver(schema),
     defaultValues: {
-      role: USER_ROLES[0],
+      baseType: USER_BASE_TYPES[0],
     },
   })
 
@@ -74,7 +74,7 @@ export default function RegisterPage() {
         name: data.name,
         email: data.email,
         password: data.password,
-        role: data.role
+        baseType: data.baseType
       });
 
       toast.success("Cadastro realizado com sucesso!", {
@@ -135,24 +135,24 @@ export default function RegisterPage() {
 
           <CardContent className="space-y-4">
 
-            {/* ROLE */}
+            {/* BASE TYPE */}
             <Tabs
-              value={role}
+              value={baseType}
               onValueChange={(value) => {
-                const next = value as UserRole;
-                setRole(next);
-                setValue("role", next);
+                const next = value as UserBaseTypes;
+                setBaseType(next);
+                setValue("baseType", next);
               }}
             >
               <TabsList className="grid grid-cols-2">
                 <TabsTrigger
-                  value={USER_ROLES[0]}
+                  value={USER_BASE_TYPES[0]}
                   className="data-[state=active]:bg-slate-600 data-[state=active]:text-white"
                 >
                   Visitante
                 </TabsTrigger>
                 <TabsTrigger
-                  value={USER_ROLES[1]}
+                  value={USER_BASE_TYPES[1]}
                   className="data-[state=active]:bg-slate-600 data-[state=active]:text-white"
                 >
                   Colaborador

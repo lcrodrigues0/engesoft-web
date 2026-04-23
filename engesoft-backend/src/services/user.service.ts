@@ -12,7 +12,7 @@ export const userService = {
 
         const name = input.name;
 
-        const role = input.role;
+        const baseType = input.baseType;
 
         const existingEmail = await userRepository.findByEmail(email);
         if (existingEmail) {
@@ -22,7 +22,7 @@ export const userService = {
 
         const password = await bcrypt.hash(input.password, SALT_ROUNDS);
 
-        return userRepository.create({ name, email, password, role });
+        return userRepository.create({ name, email, password, baseType });
     },
 
     async getAuthUserById(userId: string): Promise<AuthUser | null> {

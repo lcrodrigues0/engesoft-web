@@ -43,6 +43,8 @@ import {
   AvatarFallback,
 } from "@/components/ui/avatar";
 
+import { getBaseTypesLabel } from "@/types/user-role";
+
 const nav = [
   {
     href: "/dashboard",
@@ -112,12 +114,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const { logoutAndClear, user } = useAuth();
 
   const displayName = user?.name ?? "Usuário";
-  const roleLabel =
-    user?.role === "CONTRIBUTOR"
-      ? "Colaborador"
-      : user?.role === "GUEST"
-        ? "Assinante"
-        : "Usuário";
+  const baseTypeLabel = getBaseTypesLabel(user?.baseType);
 
   const initials = displayName
     .split(" ")
@@ -128,10 +125,12 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
 
   const currentPageLabel = useMemo(() => {
+    if (pathname === "/dashboard/profile") return "Meu Perfil";
+
     const active = nav.find((item) =>
       isActive(pathname, item.href, item.end ?? false)
     );
-    return active?.title ?? "Minha Assinatura";
+    return active?.title ?? "Painel";
   }, [pathname]);
 
   function handleLogout() {
@@ -226,7 +225,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                       {displayName}
                     </p>
                     <p className="text-[11px] text-slate-400">
-                      {roleLabel}
+                      {baseTypeLabel}
                     </p>
                   </div>
 
@@ -236,7 +235,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             </DropdownMenuTrigger>
 
             <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem>Perfil</DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/profile">Perfil</Link>
+              </DropdownMenuItem>
               <DropdownMenuItem>Configurações</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
