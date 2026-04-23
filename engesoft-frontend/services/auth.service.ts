@@ -1,12 +1,13 @@
 import { setAuthToken, clearAuthToken } from "@/lib/auth-token";
 import { apiFetch } from "@/lib/api";
-import type { UserBaseTypes } from "@/types/user-role";
+import type { UserBaseTypes, UserRoles } from "@/types/user-role";
 
 export interface RegisterDTO {
   name: string;
   email: string;
   password: string;
   baseType: UserBaseTypes;
+  roles: UserRoles[];
 }
 
 export async function login(

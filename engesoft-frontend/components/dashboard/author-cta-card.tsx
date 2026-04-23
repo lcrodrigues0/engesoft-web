@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from 'sonner';
+import { useAuth } from "@/contexts/AuthContext";
 
 type AuthorCtaCardProps = {
   className?: string;
@@ -40,6 +41,9 @@ export function AuthorCtaCard({ className }: AuthorCtaCardProps) {
   const [cepLookupError, setCepLookupError] = useState<string | null>(null);
 
   const cepDigits = normalizeCepDigits(zip);
+
+  const { user, isAuthenticated } = useAuth();
+  const isGuest = user?.baseType === "GUEST";
 
   useEffect(() => {
     if (cepDigits.length !== 8) {
@@ -146,6 +150,8 @@ export function AuthorCtaCard({ className }: AuthorCtaCardProps) {
     })
     router.push("/dashboard");
   }
+
+  if (!isGuest) return;
 
   return (
     <>

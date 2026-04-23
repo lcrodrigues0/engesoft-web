@@ -1,5 +1,5 @@
 import { prisma } from '../prisma/client'
-import { BaseType } from '@prisma/client'
+import { BaseType, Role } from '@prisma/client'
 
 export const userRepository = {
     async findByEmail(email: string){
@@ -17,7 +17,7 @@ export const userRepository = {
         })
     },
 
-    async create(data: { name: string, email: string; password: string, baseType: BaseType}) {
+    async create(data: { name: string, email: string; password: string, baseType: BaseType, roles: Role[]}) {
         return prisma.user.create({
             data,
             select: {
@@ -25,6 +25,7 @@ export const userRepository = {
                 email: true,
                 createdAt: true,
                 baseType: true,
+                roles: true
             },
         });
     },
@@ -37,6 +38,7 @@ export const userRepository = {
                 name: true,
                 email: true,
                 baseType: true,
+                roles: true,
             },
         });
     },

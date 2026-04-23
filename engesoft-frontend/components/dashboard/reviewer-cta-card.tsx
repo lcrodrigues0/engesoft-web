@@ -20,11 +20,11 @@ import { useRouter } from "next/navigation";
 import { useEffect, useId, useState } from "react";
 import { toast } from 'sonner';
 import { Plus } from 'lucide-react'
-
 import {
   ExpertiseAreaId,
   expertiseAreas,
 } from "@/lib/reviewers/reviewer-expertise-areas";
+import { useAuth } from "@/contexts/AuthContext";
 
 type ReviewerCtaCardProps = {
   className?: string;
@@ -50,8 +50,10 @@ export function ReviewerCtaCard({ className }: ReviewerCtaCardProps) {
     [ExpertiseAreaId.Empty],
   );
 
-
   const cepDigits = normalizeCepDigits(zip);
+
+  const { user, isAuthenticated } = useAuth();
+  const isContributor = user?.baseType === "CONTRIBUTOR";
 
   useEffect(() => {
     if (cepDigits.length !== 8) {
@@ -89,7 +91,7 @@ export function ReviewerCtaCard({ className }: ReviewerCtaCardProps) {
       window.clearTimeout(timer);
       ac.abort();
     };
-  }, [cepDigits]);
+  }, [isContributor]);
 
   function handleOpenChange(next: boolean) {
     setOpen(next);
@@ -172,6 +174,8 @@ export function ReviewerCtaCard({ className }: ReviewerCtaCardProps) {
   function addExpertiseAreas() {
     setExpertiseAreasIds((prev) => [...prev, ExpertiseAreaId.Empty]);
   }
+
+  if (!isContributor) return null;
 
   return (
     <>

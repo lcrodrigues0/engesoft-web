@@ -1,4 +1,4 @@
-import { BaseType } from '@prisma/client';
+import { BaseType, Role } from '@prisma/client';
 import { z } from 'zod';
 
 export const registerUserSchema = z.object({
@@ -6,6 +6,7 @@ export const registerUserSchema = z.object({
     email: z.string().trim().email('Email inválido'),
     password: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres'),
     baseType: z.nativeEnum(BaseType).optional().default(BaseType.GUEST),
+    roles: z.array(z.nativeEnum(Role)).optional().default([]),
 });
 
 export type RegisterUserInput = z.infer<typeof registerUserSchema>;

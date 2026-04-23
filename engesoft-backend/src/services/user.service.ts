@@ -14,6 +14,8 @@ export const userService = {
 
         const baseType = input.baseType;
 
+        const roles = input.roles;
+
         const existingEmail = await userRepository.findByEmail(email);
         if (existingEmail) {
             throw new ConflictError('Email já cadastrado');
@@ -22,7 +24,7 @@ export const userService = {
 
         const password = await bcrypt.hash(input.password, SALT_ROUNDS);
 
-        return userRepository.create({ name, email, password, baseType });
+        return userRepository.create({ name, email, password, baseType, roles });
     },
 
     async getAuthUserById(userId: string): Promise<AuthUser | null> {

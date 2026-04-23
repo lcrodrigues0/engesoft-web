@@ -43,7 +43,7 @@ import {
   AvatarFallback,
 } from "@/components/ui/avatar";
 
-import { getBaseTypesLabel } from "@/types/user-role";
+import { getBaseTypesLabel, getRolesLabel } from "@/types/user-role";
 
 const nav = [
   {
@@ -115,6 +115,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
   const displayName = user?.name ?? "Usuário";
   const baseTypeLabel = getBaseTypesLabel(user?.baseType);
+  const roleLabel = getRolesLabel(user?.roles);
 
   const initials = displayName
     .split(" ")
