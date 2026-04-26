@@ -6,4 +6,5 @@ export interface AuthUser {
     email: string;
     baseType: UserBaseTypes;
     roles: UserRoles[]
+    activeRole: UserRoles | null;
 }

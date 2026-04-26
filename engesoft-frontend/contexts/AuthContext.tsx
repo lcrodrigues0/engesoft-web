@@ -1,56 +1,98 @@
 "use client";
 
 import { clearAuthToken, getAuthToken } from "@/lib/auth-token";
+import {
+  clearAuthSessionCookie,
+  syncAuthSessionCookie,
+} from "@/lib/sync-auth-session-client";
 import { getCurrentUser } from "@/services/user.service";
 import { AuthUser } from "@/types/auth-user";
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  setAuthenticated: (value: boolean) => void;
+  loading: boolean;
   user: AuthUser | null;
-  setUser: (user: AuthUser | null) => void
-  refreshUser: () => Promise<void>
-  logoutAndClear: () => void 
+  setUser: (user: AuthUser | null) => void;
+  setAuthenticated: (value: boolean) => void;
+  refreshUser: () => Promise<void>;
+  logoutAndClear: () => void;
 }
 
 const AuthContext = createContext({} as AuthContextType);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [isAuthenticated, setAuthenticated] = useState(
-    () => typeof window !== "undefined" && !!getAuthToken(),
-  );
+export function AuthProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [loading, setLoading] = useState(true);
+
+  const [isAuthenticated, setAuthenticated] = useState(false);
 
   const [user, setUser] = useState<AuthUser | null>(null);
 
   const logoutAndClear = useCallback(() => {
     clearAuthToken();
+    void clearAuthSessionCookie();
+
     setUser(null);
     setAuthenticated(false);
   }, []);
 
   const refreshUser = useCallback(async () => {
     try {
+      const token = getAuthToken();
+
+      if (!token) {
+        logoutAndClear();
+        return;
+      }
+
       const currentUser = await getCurrentUser();
+
+      await syncAuthSessionCookie(token);
+
       setUser(currentUser);
-      setAuthenticated(true)
+      setAuthenticated(true);
     } catch {
       logoutAndClear();
+    } finally {
+      setLoading(false);
     }
   }, [logoutAndClear]);
 
   useEffect(() => {
-    if (!getAuthToken()) {
+    const token = getAuthToken();
+
+    if (!token) {
+      setLoading(false);
       setUser(null);
       setAuthenticated(false);
       return;
     }
 
     void refreshUser();
-  }, [refreshUser])
+  }, [refreshUser]);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, setAuthenticated, user, setUser, refreshUser, logoutAndClear }}>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        loading,
+        user,
+        setUser,
+        setAuthenticated,
+        refreshUser,
+        logoutAndClear,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

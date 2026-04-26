@@ -1,6 +1,5 @@
 import { getAuthToken } from "@/lib/auth-token";
-
-const API_URL = "http://localhost:3000";
+import { getApiBaseUrl } from "@/lib/api-base-url";
 
 export class ApiError extends Error {
   constructor(
@@ -28,7 +27,7 @@ function messageFromBody(data: unknown): string {
 export async function apiFetch(path: string, options?: RequestInit) {
   const token = getAuthToken();
 
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await fetch(`${getApiBaseUrl()}${path}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',

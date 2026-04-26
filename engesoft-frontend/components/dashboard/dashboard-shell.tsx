@@ -43,9 +43,18 @@ import {
   AvatarFallback,
 } from "@/components/ui/avatar";
 
-import { getBaseTypesLabel, getRolesLabel } from "@/types/user-role";
+import { getBaseTypesLabel, getRolesLabel, UserRoles } from "@/types/user-role";
 
-const nav = [
+type NavItem = {
+  href: string;
+  label: string;
+  title: string;
+  icon: (typeof LayoutDashboard);
+  end?: boolean;
+  requiredRoles?: UserRoles[];
+};
+
+const nav: NavItem[] = [
   {
     href: "/dashboard",
     label: "Painel",
@@ -66,6 +75,7 @@ const nav = [
     title: "Artigos",
     icon: FileText,
     end: false,
+    requiredRoles: ["AUTHOR"],
   },
   {
     href: "/dashboard/reviews",
@@ -88,7 +98,7 @@ const nav = [
     icon: ListChecks,
     end: false,
   },
-] as const;
+];
 
 function isActive(pathname: string, href: string, end?: boolean) {
   if (end) return pathname === href || pathname === `${href}/`;
@@ -113,6 +123,14 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
   const { logoutAndClear, user } = useAuth();
 
+  const visibleNav = useMemo(() => {
+    const roles = user?.roles ?? [];
+    return nav.filter((item) => {
+      if (!item.requiredRoles?.length) return true;
+      return item.requiredRoles.some((r) => roles.includes(r));
+    });
+  }, [user?.roles]);
+
   const displayName = user?.name ?? "Usuário";
   const baseTypeLabel = getBaseTypesLabel(user?.baseType);
   const roleLabel = getRolesLabel(user?.roles);
@@ -128,11 +146,11 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const currentPageLabel = useMemo(() => {
     if (pathname === "/dashboard/profile") return "Meu Perfil";
 
-    const active = nav.find((item) =>
+    const active = visibleNav.find((item) =>
       isActive(pathname, item.href, item.end ?? false)
     );
     return active?.title ?? "Painel";
-  }, [pathname]);
+  }, [pathname, visibleNav]);
 
   function handleLogout() {
     logoutAndClear()
@@ -152,7 +170,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu className="gap-1">
-                {nav.map((item) => {
+                {visibleNav.map((item) => {
                   const { href, label, icon: Icon } = item;
                   const end = "end" in item ? item.end : false;
                   const active = isActive(pathname, href, end);

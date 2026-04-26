@@ -26,6 +26,22 @@ model User {
   refreshToken  String?
   baseType      BaseType    @default(GUEST)
   roles         Role[]      @default([])
+  author        Author?
   createdAt     DateTime    @default(now())
+}
+
+model Author {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  institutionName String
+  street          String
+  number          String
+  complement      String?
+  neighborhood    String
+  city            String
+  stateUf         String
+  zipCode         String
+  user            User     @relation(fields: [userId], references: [id])
+  createdAt       DateTime @default(now())
 }
 

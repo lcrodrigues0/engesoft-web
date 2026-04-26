@@ -1,15 +1,46 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 import { submittedArticles as initialSubmittedArticles } from "@/lib/articles/submitted-articles";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useState } from "react";
 import { SubmitArticleDialog } from "./submit-article-dialog";
 import { SubmittedArticlesView } from "./submitted-articles-view";
 
 export function ArticlesPageClient() {
+  const { user, isAuthenticated } = useAuth();
+  const router = useRouter();
   const [articles, setArticles] = useState(() => [...initialSubmittedArticles]);
   const [submitOpen, setSubmitOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.replace("/login");
+      return;
+    }
+    if (user === null) return;
+    if (!user.roles.includes("AUTHOR")) {
+      router.replace("/dashboard");
+    }
+  }, [isAuthenticated, user, router]);
+
+  if (!isAuthenticated || user === null) {
+    return (
+      <div className="-m-6 flex min-h-[calc(100dvh-3.5rem)] items-center justify-center bg-slate-100 p-6">
+        <p className="text-sm text-slate-600">Carregando…</p>
+      </div>
+    );
+  }
+
+  if (!user.roles.includes("AUTHOR")) {
+    return (
+      <div className="-m-6 flex min-h-[calc(100dvh-3.5rem)] items-center justify-center bg-slate-100 p-6">
+        <p className="text-sm text-slate-600">Redirecionando…</p>
+      </div>
+    );
+  }
 
   return (
     <div className="-m-6 min-h-[calc(100dvh-3.5rem)] bg-slate-100 p-6 md:p-8">

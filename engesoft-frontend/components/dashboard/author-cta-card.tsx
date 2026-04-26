@@ -16,10 +16,12 @@ import {
   normalizeCepDigits,
 } from "@/lib/viacep";
 import { cn } from "@/lib/utils";
+import { ApiError } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from 'sonner';
 import { useAuth } from "@/contexts/AuthContext";
+import { registerAuthor } from "@/services/author.service";
 
 type AuthorCtaCardProps = {
   className?: string;
@@ -39,14 +41,15 @@ export function AuthorCtaCard({ className }: AuthorCtaCardProps) {
   const [error, setError] = useState<string | null>(null);
   const [cepLoading, setCepLoading] = useState(false);
   const [cepLookupError, setCepLookupError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const cepDigits = normalizeCepDigits(zip);
 
-  const { user, isAuthenticated } = useAuth();
-  const isGuest = user?.baseType === "GUEST";
-
+  const { user, loading, setUser, refreshUser } = useAuth();
+  const isAuthor = user?.roles?.includes("AUTHOR") ?? false;
+  
   useEffect(() => {
-    if (cepDigits.length !== 8) {
+    if (loading || cepDigits.length !== 8) {
       setCepLookupError(null);
       setCepLoading(false);
       return;
@@ -81,9 +84,10 @@ export function AuthorCtaCard({ className }: AuthorCtaCardProps) {
       window.clearTimeout(timer);
       ac.abort();
     };
-  }, [cepDigits]);
+  }, [cepDigits, loading]);
 
   function handleOpenChange(next: boolean) {
+    if (submitting && !next) return;
     setOpen(next);
     if (!next) {
       setError(null);
@@ -102,7 +106,7 @@ export function AuthorCtaCard({ className }: AuthorCtaCardProps) {
     setZip("");
   }
 
-  function handleConfirm() {
+  async function handleConfirm() {
     const name = institutionName.trim();
     const s = street.trim();
     const n = number.trim();
@@ -140,18 +144,48 @@ export function AuthorCtaCard({ className }: AuthorCtaCardProps) {
       return;
     }
 
+    setSubmitting(true);
     setError(null);
-    setOpen(false);
-    setInstitutionName("");
-    resetAddressFields();
+    try {
+      await registerAuthor({
+        institutionName: name,
+        street: s,
+        number: n,
+        complement: complement.trim() || undefined,
+        neighborhood: nb,
+        city: c,
+        stateUf: uf,
+        zipCode: cepNormalized,
+      });
 
-    toast.success("Cadastro como autor realizado com sucesso!", {
-      description: "Você já está habilitado a submeter artigos. Acesse a aba Artigos para isso."
-    })
-    router.push("/dashboard");
+      if (user && !user.roles.includes("AUTHOR")) {
+        setUser({ ...user, roles: [...user.roles, "AUTHOR"] });
+      }
+      await refreshUser();
+
+      setOpen(false);
+      setInstitutionName("");
+      resetAddressFields();
+
+      toast.success("Cadastro como autor realizado com sucesso!", {
+        description: "Você já está habilitado a submeter artigos. Acesse a aba Artigos para isso."
+      });
+    } catch (e: unknown) {
+      const message =
+        e instanceof ApiError
+          ? e.message
+          : "Não foi possível concluir o cadastro como autor.";
+      setError(message);
+      toast.error("Erro ao cadastrar autor", {
+        description: message,
+      });
+    } finally {
+      setSubmitting(false);
+    }
   }
 
-  if (!isGuest) return;
+  if (loading) return null;
+  if (isAuthor) return;
 
   return (
     <>
@@ -351,6 +385,7 @@ export function AuthorCtaCard({ className }: AuthorCtaCardProps) {
               variant="outline"
               size="lg"
               className="text-sm"
+              disabled={submitting}
               onClick={() => handleOpenChange(false)}
             >
               Cancelar
@@ -359,9 +394,10 @@ export function AuthorCtaCard({ className }: AuthorCtaCardProps) {
               type="button"
               size="lg"
               className="bg-slate-800 text-sm text-slate-50 hover:bg-slate-900"
+              disabled={submitting}
               onClick={handleConfirm}
             >
-              Confirmar
+              {submitting ? "Confirmando..." : "Confirmar"}
             </Button>
           </div>
         </DialogContent>

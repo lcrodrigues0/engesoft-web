@@ -4,6 +4,7 @@ import { prisma } from './prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import cors from 'cors';
+import { authorController } from './controllers/author.controller';
 import { userController } from './controllers/user.controller';
 
 const app = express();
@@ -53,6 +54,7 @@ app.get('/', (req, res) => {
 });
 
 app.post('/register', (req, res) => userController.register(req, res));
+app.post('/authors', authenticate, (req, res) => authorController.register(req, res));
 
 app.get('/me', authenticate, (req, res) => userController.me(req, res));
 

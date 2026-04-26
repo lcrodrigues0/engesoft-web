@@ -61,11 +61,11 @@ export function SubscriberCtaCard({ className }: SubscriberCtaCardProps) {
 
   const cepDigits = normalizeCepDigits(zip);
 
-  const { user, isAuthenticated } = useAuth();
-  const isGuest = user?.baseType === "GUEST";
+  const { user, loading, setUser } = useAuth();
+  const isSubscriber = user?.roles?.includes("SUBSCRIBER") ?? false;
 
   useEffect(() => {
-    if (cepDigits.length !== 8) {
+    if (loading || cepDigits.length !== 8) {
       setCepLookupError(null);
       setCepLoading(false);
       return;
@@ -99,7 +99,7 @@ export function SubscriberCtaCard({ className }: SubscriberCtaCardProps) {
       window.clearTimeout(timer);
       ac.abort();
     };
-  }, [cepDigits]);
+  }, [cepDigits, loading]);
 
   function resetAddressFields() {
     setStreet("");
@@ -215,6 +215,9 @@ export function SubscriberCtaCard({ className }: SubscriberCtaCardProps) {
     resetPersonFields();
     resetCorporateFields();
     setSubscriberType("individual");
+    if (user && !user.roles.includes("SUBSCRIBER")) {
+      setUser({ ...user, roles: [...user.roles, "SUBSCRIBER"] });
+    }
 
     toast.success("Assinatura registrada com sucesso!", {
       description:
@@ -223,7 +226,8 @@ export function SubscriberCtaCard({ className }: SubscriberCtaCardProps) {
     router.push("/dashboard");
   }
 
-  if (!isGuest) return;
+  if (loading) return null;
+  if (isSubscriber) return;
   
   return (
     <>

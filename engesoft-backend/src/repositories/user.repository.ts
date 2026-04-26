@@ -42,4 +42,25 @@ export const userRepository = {
             },
         });
     },
+
+    async findById(id: string) {
+        return prisma.user.findUnique({
+            where: { id },
+            select: {
+                id: true,
+                roles: true,
+            },
+        });
+    },
+
+    async updateRoles(userId: string, roles: Role[]) {
+        return prisma.user.update({
+            where: { id: userId },
+            data: { roles },
+            select: {
+                id: true,
+                roles: true,
+            },
+        });
+    },
 } 

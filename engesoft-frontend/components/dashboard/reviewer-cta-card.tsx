@@ -52,11 +52,11 @@ export function ReviewerCtaCard({ className }: ReviewerCtaCardProps) {
 
   const cepDigits = normalizeCepDigits(zip);
 
-  const { user, isAuthenticated } = useAuth();
-  const isContributor = user?.baseType === "CONTRIBUTOR";
-
+  const { user, loading, setUser } = useAuth();
+  const isReviewer = user?.roles?.includes("REVIEWER") ?? false;
+  
   useEffect(() => {
-    if (cepDigits.length !== 8) {
+    if (loading || cepDigits.length !== 8) {
       setCepLookupError(null);
       setCepLoading(false);
       return;
@@ -91,7 +91,7 @@ export function ReviewerCtaCard({ className }: ReviewerCtaCardProps) {
       window.clearTimeout(timer);
       ac.abort();
     };
-  }, [isContributor]);
+  }, [cepDigits, loading]);
 
   function handleOpenChange(next: boolean) {
     setOpen(next);
@@ -164,6 +164,9 @@ export function ReviewerCtaCard({ className }: ReviewerCtaCardProps) {
     setInstitutionName("");
     resetAddressFields();
     setExpertiseAreasIds([ExpertiseAreaId.Empty]);
+    if (user && !user.roles.includes("REVIEWER")) {
+      setUser({ ...user, roles: [...user.roles, "REVIEWER"] });
+    }
 
     toast.success("Cadastro como avaliador realizado com sucesso!", {
       description: "Você já está habilitado a submeter artigos. Acesse a aba Artigos para isso."
@@ -175,7 +178,8 @@ export function ReviewerCtaCard({ className }: ReviewerCtaCardProps) {
     setExpertiseAreasIds((prev) => [...prev, ExpertiseAreaId.Empty]);
   }
 
-  if (!isContributor) return null;
+  if (loading) return null;
+  if (isReviewer) return null;
 
   return (
     <>
