@@ -1,9 +1,5 @@
 import {
   ENGESOFT_ROLES_COOKIE,
-  cookieHasAuthorRole,
-  cookieHasChiefEditorRole,
-  cookieHasReviewerRole,
-  cookieHasSubscriberRole,
 } from "@/lib/auth-session";
 import { NextResponse, type NextRequest } from "next/server";
 
@@ -17,22 +13,6 @@ export function middleware(request: NextRequest) {
 
   if (raw === undefined && !isPublicPath) {
     return NextResponse.redirect(new URL("/login", request.url));
-  }
-
-  if (pathname.startsWith("/dashboard/articles") && raw !== undefined && !cookieHasAuthorRole(raw)) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
-  }
-
-  if (pathname.startsWith("/dashboard/reviews") && raw !== undefined && !cookieHasReviewerRole(raw)) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
-  }
-
-  if (pathname.startsWith("/dashboard/subscriptions") && raw !== undefined && !cookieHasSubscriberRole(raw)) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
-  }
-
-  if (pathname.startsWith("/dashboard/selections") && raw !== undefined && !cookieHasChiefEditorRole(raw)) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   return NextResponse.next();
