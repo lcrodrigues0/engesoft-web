@@ -184,7 +184,7 @@ export function SubscriptionsView({ subscriptions, onChange }: SubscriptionsView
 
         <section className="grid gap-4 xl:grid-cols-[2fr_1fr]">
           <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-            <h3 className="text-lg font-semibold text-slate-900">Informacoes da Assinatura</h3>
+            <h3 className="text-lg font-semibold text-slate-900">Informações da Assinatura</h3>
             <div className="mt-4 grid gap-5 lg:grid-cols-2">
               <dl className="space-y-3 text-sm">
                 <div className="grid grid-cols-[10rem_1fr] gap-3">
@@ -204,7 +204,7 @@ export function SubscriptionsView({ subscriptions, onChange }: SubscriptionsView
                   <dd className="font-medium text-slate-900">{dateText(current.validUntil)}</dd>
                 </div>
                 <div className="grid grid-cols-[10rem_1fr] gap-3">
-                  <dt className="text-slate-500">Renovacoes Consecutivas</dt>
+                  <dt className="text-slate-500">Renovações Consecutivas</dt>
                   <dd className="font-medium text-slate-900">3 anos</dd>
                 </div>
                 <div className="grid grid-cols-[10rem_1fr] gap-3">
@@ -239,7 +239,7 @@ export function SubscriptionsView({ subscriptions, onChange }: SubscriptionsView
 
           <aside className="space-y-4">
             <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-              <h3 className="text-lg font-semibold text-slate-900">Acoes Rapidas</h3>
+              <h3 className="text-lg font-semibold text-slate-900">Ações Rápidas</h3>
               <div className="mt-3 space-y-2">
                 <button
                   type="button"
@@ -262,7 +262,7 @@ export function SubscriptionsView({ subscriptions, onChange }: SubscriptionsView
                   <span className="block">
                     <span className="block text-sm font-medium text-slate-900">Atualizar Dados Cadastrais</span>
                     <span className="block text-xs text-slate-500">
-                      Revise suas informacoes pessoais
+                      Revise suas informações pessoais
                     </span>
                   </span>
                   <ChevronRight className="size-4 text-slate-500" />

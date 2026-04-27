@@ -16,6 +16,7 @@ import {
   normalizeCepDigits,
 } from "@/lib/viacep";
 import { cn } from "@/lib/utils";
+import { ApiError } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useState } from "react";
 import { toast } from 'sonner';
@@ -25,6 +26,8 @@ import {
   expertiseAreas,
 } from "@/lib/reviewers/reviewer-expertise-areas";
 import { useAuth } from "@/contexts/AuthContext";
+import { saveReviewerProfileStorage } from "@/lib/cta-profile-storage";
+import { registerReviewer } from "@/services/reviewer.service";
 
 type ReviewerCtaCardProps = {
   className?: string;
@@ -45,6 +48,7 @@ export function ReviewerCtaCard({ className }: ReviewerCtaCardProps) {
   const [error, setError] = useState<string | null>(null);
   const [cepLoading, setCepLoading] = useState(false);
   const [cepLookupError, setCepLookupError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const [expertiseAreasIds, setExpertiseAreasIds] = useState<ExpertiseAreaId[]>(
     [ExpertiseAreaId.Empty],
@@ -54,6 +58,7 @@ export function ReviewerCtaCard({ className }: ReviewerCtaCardProps) {
 
   const { user, loading, setUser } = useAuth();
   const isReviewer = user?.roles?.includes("REVIEWER") ?? false;
+  const isEmployee = user?.baseType === "CONTRIBUTOR";
   
   useEffect(() => {
     if (loading || cepDigits.length !== 8) {
@@ -94,6 +99,7 @@ export function ReviewerCtaCard({ className }: ReviewerCtaCardProps) {
   }, [cepDigits, loading]);
 
   function handleOpenChange(next: boolean) {
+    if (submitting && !next) return;
     setOpen(next);
 
     if (!next) {
@@ -114,7 +120,7 @@ export function ReviewerCtaCard({ className }: ReviewerCtaCardProps) {
     setZip("");
   }
 
-  function handleConfirm() {
+  async function handleConfirm() {
     const name = institutionName.trim();
     const s = street.trim();
     const n = number.trim();
@@ -159,19 +165,61 @@ export function ReviewerCtaCard({ className }: ReviewerCtaCardProps) {
       return;
     }
 
+    setSubmitting(true);
     setError(null);
-    setOpen(false);
-    setInstitutionName("");
-    resetAddressFields();
-    setExpertiseAreasIds([ExpertiseAreaId.Empty]);
-    if (user && !user.roles.includes("REVIEWER")) {
-      setUser({ ...user, roles: [...user.roles, "REVIEWER"] });
-    }
+    try {
+      await registerReviewer({
+        institutionName: name,
+        street: s,
+        number: n,
+        complement: complement.trim() || undefined,
+        neighborhood: nb,
+        city: c,
+        stateUf: uf,
+        zipCode: cepNormalized,
+        expertiseAreasIds,
+      });
 
-    toast.success("Cadastro como avaliador realizado com sucesso!", {
-      description: "Você já está habilitado a submeter artigos. Acesse a aba Artigos para isso."
-    })
-    router.push("/dashboard");
+      if (user?.id) {
+        saveReviewerProfileStorage(user.id, {
+          institutionName: name,
+          address: {
+            street: s,
+            number: n,
+            complement: complement.trim() || undefined,
+            neighborhood: nb,
+            city: c,
+            stateUf: uf,
+            zipCode: cepNormalized,
+          },
+          expertiseAreasIds,
+        });
+      }
+
+      setOpen(false);
+      setInstitutionName("");
+      resetAddressFields();
+      setExpertiseAreasIds([ExpertiseAreaId.Empty]);
+      if (user && !user.roles.includes("REVIEWER")) {
+        setUser({ ...user, roles: [...user.roles, "REVIEWER"] });
+      }
+
+      toast.success("Cadastro como avaliador realizado com sucesso!", {
+        description: "Você já está habilitado a submeter artigos. Acesse a aba Artigos para isso."
+      });
+      router.push("/dashboard");
+    } catch (e: unknown) {
+      const message =
+        e instanceof ApiError
+          ? e.message
+          : "Não foi possível concluir o cadastro como avaliador.";
+      setError(message);
+      toast.error("Erro ao cadastrar avaliador", {
+        description: message,
+      });
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   function addExpertiseAreas() {
@@ -179,6 +227,7 @@ export function ReviewerCtaCard({ className }: ReviewerCtaCardProps) {
   }
 
   if (loading) return null;
+  if (!isEmployee) return null;
   if (isReviewer) return null;
 
   return (
@@ -437,6 +486,7 @@ export function ReviewerCtaCard({ className }: ReviewerCtaCardProps) {
               size="lg"
               className="text-sm"
               onClick={() => handleOpenChange(false)}
+              disabled={submitting}
             >
               Cancelar
             </Button>
@@ -445,8 +495,9 @@ export function ReviewerCtaCard({ className }: ReviewerCtaCardProps) {
               size="lg"
               className="bg-slate-800 text-sm text-slate-50 hover:bg-slate-900"
               onClick={handleConfirm}
+              disabled={submitting}
             >
-              Confirmar
+              {submitting ? "Confirmando..." : "Confirmar"}
             </Button>
           </div>
         </DialogContent>

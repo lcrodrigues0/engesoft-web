@@ -7,7 +7,7 @@ export interface RegisterDTO {
   email: string;
   password: string;
   baseType: UserBaseTypes;
-  roles: UserRoles[];
+  roles?: UserRoles[];
 }
 
 export async function login(

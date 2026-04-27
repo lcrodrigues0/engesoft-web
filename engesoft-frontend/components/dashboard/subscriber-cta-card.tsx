@@ -20,6 +20,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { saveSubscriberProfileStorage } from "@/lib/cta-profile-storage";
+import { ApiError } from "@/lib/api";
+import { registerSubscriber } from "@/services/subscriber.service";
 
 type SubscriberType = "individual" | "corporate";
 
@@ -29,6 +32,22 @@ type SubscriberCtaCardProps = {
 
 function normalizeDigitsOnly(v: string): string {
   return v.replace(/\D/g, "");
+}
+
+function formatIdentityDisplay(v: string): string {
+  const digits = normalizeDigitsOnly(v).slice(0, 9);
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 5) return `${digits.slice(0, 2)}.${digits.slice(2)}`;
+  if (digits.length <= 8) return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5)}`;
+  return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}-${digits.slice(8)}`;
+}
+
+function formatCpfDisplay(v: string): string {
+  const digits = normalizeDigitsOnly(v).slice(0, 11);
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 6) return `${digits.slice(0, 3)}.${digits.slice(3)}`;
+  if (digits.length <= 9) return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`;
+  return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
 }
 
 export function SubscriberCtaCard({ className }: SubscriberCtaCardProps) {
@@ -58,10 +77,11 @@ export function SubscriberCtaCard({ className }: SubscriberCtaCardProps) {
   const [error, setError] = useState<string | null>(null);
   const [cepLoading, setCepLoading] = useState(false);
   const [cepLookupError, setCepLookupError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const cepDigits = normalizeCepDigits(zip);
 
-  const { user, loading, setUser } = useAuth();
+  const { user, loading, setUser, refreshUser } = useAuth();
   const isSubscriber = user?.roles?.includes("SUBSCRIBER") ?? false;
 
   useEffect(() => {
@@ -126,6 +146,7 @@ export function SubscriberCtaCard({ className }: SubscriberCtaCardProps) {
   }
 
   function handleOpenChange(next: boolean) {
+    if (submitting && !next) return;
     setOpen(next);
     if (!next) {
       setError(null);
@@ -134,7 +155,7 @@ export function SubscriberCtaCard({ className }: SubscriberCtaCardProps) {
     }
   }
 
-  function handleConfirm() {
+  async function handleConfirm() {
     const emailTrimmed = email.trim();
     const streetTrimmed = street.trim();
     const numberTrimmed = number.trim();
@@ -208,22 +229,113 @@ export function SubscriberCtaCard({ className }: SubscriberCtaCardProps) {
       }
     }
 
+    setSubmitting(true);
     setError(null);
-    setOpen(false);
-    setEmail("");
-    resetAddressFields();
-    resetPersonFields();
-    resetCorporateFields();
-    setSubscriberType("individual");
-    if (user && !user.roles.includes("SUBSCRIBER")) {
-      setUser({ ...user, roles: [...user.roles, "SUBSCRIBER"] });
-    }
 
-    toast.success("Assinatura registrada com sucesso!", {
-      description:
-        "Cadastro de assinante concluído para 12 edições anuais da EngeSoft.",
-    });
-    router.push("/dashboard");
+    try {
+      if (subscriberType === "individual") {
+        await registerSubscriber({
+          subscriberType: "individual",
+          email: emailTrimmed,
+          fullName: fullName.trim(),
+          sex: sex.trim(),
+          birthDate,
+          identityNumber: identityNumber.trim(),
+          cpf: normalizeDigitsOnly(cpf),
+          street: streetTrimmed,
+          number: numberTrimmed,
+          complement: complement.trim() || undefined,
+          neighborhood: neighborhoodTrimmed,
+          city: cityTrimmed,
+          stateUf: uf,
+          zipCode: cepNormalized,
+        });
+      } else {
+        await registerSubscriber({
+          subscriberType: "corporate",
+          email: emailTrimmed,
+          corporateName: corporateName.trim(),
+          cnpj: normalizeDigitsOnly(cnpj),
+          contactResponsible: contactResponsible.trim(),
+          street: streetTrimmed,
+          number: numberTrimmed,
+          complement: complement.trim() || undefined,
+          neighborhood: neighborhoodTrimmed,
+          city: cityTrimmed,
+          stateUf: uf,
+          zipCode: cepNormalized,
+        });
+      }
+
+      if (user?.id) {
+        if (subscriberType === "individual") {
+          saveSubscriberProfileStorage(user.id, {
+            subscriberType: "individual",
+            email: emailTrimmed,
+            fullName: fullName.trim(),
+            sex: sex.trim(),
+            birthDate,
+            identityNumber: identityNumber.trim(),
+            cpf: normalizeDigitsOnly(cpf),
+            address: {
+              street: streetTrimmed,
+              number: numberTrimmed,
+              complement: complement.trim() || undefined,
+              neighborhood: neighborhoodTrimmed,
+              city: cityTrimmed,
+              stateUf: uf,
+              zipCode: cepNormalized,
+            },
+          });
+        } else {
+          saveSubscriberProfileStorage(user.id, {
+            subscriberType: "corporate",
+            email: emailTrimmed,
+            corporateName: corporateName.trim(),
+            cnpj: normalizeDigitsOnly(cnpj),
+            contactResponsible: contactResponsible.trim(),
+            address: {
+              street: streetTrimmed,
+              number: numberTrimmed,
+              complement: complement.trim() || undefined,
+              neighborhood: neighborhoodTrimmed,
+              city: cityTrimmed,
+              stateUf: uf,
+              zipCode: cepNormalized,
+            },
+          });
+        }
+      }
+
+      if (user && !user.roles.includes("SUBSCRIBER")) {
+        setUser({ ...user, roles: [...user.roles, "SUBSCRIBER"] });
+      }
+      await refreshUser();
+
+      setOpen(false);
+      setEmail("");
+      resetAddressFields();
+      resetPersonFields();
+      resetCorporateFields();
+      setSubscriberType("individual");
+
+      toast.success("Assinatura registrada com sucesso!", {
+        description:
+          "Cadastro de assinante concluído para 12 edições anuais da EngeSoft.",
+      });
+      router.push("/dashboard");
+    } catch (e: unknown) {
+      const message =
+        e instanceof ApiError
+          ? e.message
+          : "Não foi possível concluir o cadastro como assinante.";
+      setError(message);
+      toast.error("Erro ao cadastrar assinante", {
+        description: message,
+      });
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   if (loading) return null;
@@ -313,13 +425,18 @@ export function SubscriberCtaCard({ className }: SubscriberCtaCardProps) {
                       <Label htmlFor="subscriber-sex" className="text-xs sm:text-sm">
                         Sexo
                       </Label>
-                      <Input
+                      <select
                         id="subscriber-sex"
-                        className="h-9 text-sm"
+                        className="h-9 rounded-md border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50"
                         value={sex}
                         onChange={(e) => setSex(e.target.value)}
-                        placeholder="Ex.: Feminino"
-                      />
+                      >
+                        <option value="">Selecione</option>
+                        <option value="Feminino">Feminino</option>
+                        <option value="Masculino">Masculino</option>
+                        <option value="Outro">Outro</option>
+                        <option value="Prefiro não informar">Prefiro não informar</option>
+                      </select>
                     </div>
                     <div className="grid gap-1.5">
                       <Label htmlFor="subscriber-birth-date" className="text-xs sm:text-sm">
@@ -341,8 +458,10 @@ export function SubscriberCtaCard({ className }: SubscriberCtaCardProps) {
                         id="subscriber-identity"
                         className="h-9 text-sm"
                         value={identityNumber}
-                        onChange={(e) => setIdentityNumber(e.target.value)}
-                        placeholder="RG / documento"
+                        onChange={(e) => setIdentityNumber(formatIdentityDisplay(e.target.value))}
+                        placeholder="00.000.000-0"
+                        inputMode="numeric"
+                        maxLength={12}
                       />
                     </div>
                     <div className="grid gap-1.5">
@@ -353,9 +472,10 @@ export function SubscriberCtaCard({ className }: SubscriberCtaCardProps) {
                         id="subscriber-cpf"
                         className="h-9 text-sm"
                         value={cpf}
-                        onChange={(e) => setCpf(e.target.value)}
+                        onChange={(e) => setCpf(formatCpfDisplay(e.target.value))}
                         placeholder="000.000.000-00"
                         inputMode="numeric"
+                        maxLength={14}
                       />
                     </div>
                   </div>
@@ -552,6 +672,7 @@ export function SubscriberCtaCard({ className }: SubscriberCtaCardProps) {
               variant="outline"
               size="lg"
               className="text-sm"
+              disabled={submitting}
               onClick={() => handleOpenChange(false)}
             >
               Cancelar
@@ -560,9 +681,10 @@ export function SubscriberCtaCard({ className }: SubscriberCtaCardProps) {
               type="button"
               size="lg"
               className="bg-slate-800 text-sm text-slate-50 hover:bg-slate-900"
+              disabled={submitting}
               onClick={handleConfirm}
             >
-              Confirmar assinatura
+              {submitting ? "Confirmando..." : "Confirmar assinatura"}
             </Button>
           </div>
         </DialogContent>

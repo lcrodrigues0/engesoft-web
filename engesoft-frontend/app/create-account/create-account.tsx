@@ -26,6 +26,11 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import Image from "next/image"
 
+const BASE_TYPE_OPTIONS: Array<{ value: UserBaseTypes; label: string }> = [
+  { value: "GUEST", label: "Visitante" },
+  { value: "CONTRIBUTOR", label: "Colaborador" },
+];
+
 // ----------------------
 // Schema
 // ----------------------
@@ -50,7 +55,7 @@ type FormData = z.infer<typeof schema>
 // ----------------------
 
 export default function RegisterPage() {
-  const [baseType, setBaseType] = useState<UserBaseTypes>(USER_BASE_TYPES[0])
+  const [baseType, setBaseType] = useState<UserBaseTypes>(BASE_TYPE_OPTIONS[0].value)
 
   const router = useRouter();
 
@@ -64,7 +69,7 @@ export default function RegisterPage() {
 
     resolver: zodResolver(schema),
     defaultValues: {
-      baseType: USER_BASE_TYPES[0],
+      baseType: BASE_TYPE_OPTIONS[0].value,
     },
   })
 
@@ -145,20 +150,18 @@ export default function RegisterPage() {
               }}
             >
               <TabsList className="grid grid-cols-2">
-                <TabsTrigger
-                  value={USER_BASE_TYPES[0]}
-                  className="data-[state=active]:bg-slate-600 data-[state=active]:text-white"
-                >
-                  Visitante
-                </TabsTrigger>
-                <TabsTrigger
-                  value={USER_BASE_TYPES[1]}
-                  className="data-[state=active]:bg-slate-600 data-[state=active]:text-white"
-                >
-                  Colaborador
-                </TabsTrigger>
+                {BASE_TYPE_OPTIONS.map((option) => (
+                  <TabsTrigger
+                    key={option.value}
+                    value={option.value}
+                    className="data-[state=active]:bg-slate-600 data-[state=active]:text-white"
+                  >
+                    {option.label}
+                  </TabsTrigger>
+                ))}
               </TabsList>
             </Tabs>
+            <input type="hidden" {...register("baseType")} />
 
             {/* NAME */}
             <div>

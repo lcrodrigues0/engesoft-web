@@ -83,6 +83,7 @@ const nav: NavItem[] = [
     title: "Avaliações",
     icon: ClipboardCheck,
     end: false,
+    requiredRoles: ["REVIEWER"],
   },
   {
     href: "/dashboard/subscriptions",
@@ -90,6 +91,7 @@ const nav: NavItem[] = [
     title: "Minha Assinatura",
     icon: Newspaper,
     end: false,
+    requiredRoles: ["SUBSCRIBER"],
   },
   {
     href: "/dashboard/selections",
@@ -97,6 +99,7 @@ const nav: NavItem[] = [
     title: "Seleções",
     icon: ListChecks,
     end: false,
+    requiredRoles: ["CHIEF_EDITOR"],
   },
 ];
 

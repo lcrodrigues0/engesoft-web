@@ -22,6 +22,7 @@ import { useEffect, useState } from "react";
 import { toast } from 'sonner';
 import { useAuth } from "@/contexts/AuthContext";
 import { registerAuthor } from "@/services/author.service";
+import { saveAuthorProfileStorage } from "@/lib/cta-profile-storage";
 
 type AuthorCtaCardProps = {
   className?: string;
@@ -157,6 +158,21 @@ export function AuthorCtaCard({ className }: AuthorCtaCardProps) {
         stateUf: uf,
         zipCode: cepNormalized,
       });
+
+      if (user?.id) {
+        saveAuthorProfileStorage(user.id, {
+          institutionName: name,
+          address: {
+            street: s,
+            number: n,
+            complement: complement.trim() || undefined,
+            neighborhood: nb,
+            city: c,
+            stateUf: uf,
+            zipCode: cepNormalized,
+          },
+        });
+      }
 
       if (user && !user.roles.includes("AUTHOR")) {
         setUser({ ...user, roles: [...user.roles, "AUTHOR"] });

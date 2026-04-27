@@ -27,6 +27,8 @@ model User {
   baseType      BaseType    @default(GUEST)
   roles         Role[]      @default([])
   author        Author?
+  reviewer      Reviewer?
+  subscriber    Subscriber?
   createdAt     DateTime    @default(now())
 }
 
@@ -43,5 +45,45 @@ model Author {
   zipCode         String
   user            User     @relation(fields: [userId], references: [id])
   createdAt       DateTime @default(now())
+}
+
+model Reviewer {
+  id                 String   @id @default(uuid())
+  userId             String   @unique
+  institutionName    String
+  street             String
+  number             String
+  complement         String?
+  neighborhood       String
+  city               String
+  stateUf            String
+  zipCode            String
+  expertiseAreasIds  String[]
+  user               User     @relation(fields: [userId], references: [id])
+  createdAt          DateTime @default(now())
+}
+
+model Subscriber {
+  id                  String   @id @default(uuid())
+  userId              String   @unique
+  subscriberType      String
+  email               String
+  fullName            String?
+  sex                 String?
+  birthDate           String?
+  identityNumber      String?
+  cpf                 String?
+  corporateName       String?
+  cnpj                String?
+  contactResponsible  String?
+  street              String
+  number              String
+  complement          String?
+  neighborhood        String
+  city                String
+  stateUf             String
+  zipCode             String
+  user                User     @relation(fields: [userId], references: [id])
+  createdAt           DateTime @default(now())
 }
 

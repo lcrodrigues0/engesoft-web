@@ -2,10 +2,10 @@ import { Prisma } from '@prisma/client';
 import type { Request, Response } from 'express';
 import { ConflictError } from '../errors/conflict.error';
 import { NotFoundError } from '../errors/not-found.error';
-import { registerAuthorSchema } from '../schemas/author.schema';
-import { authorService } from '../services/author.service';
+import { registerSubscriberSchema } from '../schemas/subscriber.schema';
+import { subscriberService } from '../services/subscriber.service';
 
-export const authorController = {
+export const subscriberController = {
     async register(req: Request, res: Response) {
         const userId = req.userId;
 
@@ -13,7 +13,7 @@ export const authorController = {
             return res.status(401).json({ message: 'Não autenticado.' });
         }
 
-        const parsed = registerAuthorSchema.safeParse(req.body);
+        const parsed = registerSubscriberSchema.safeParse(req.body);
 
         if (!parsed.success) {
             return res.status(400).json({
@@ -23,8 +23,8 @@ export const authorController = {
         }
 
         try {
-            const author = await authorService.register(userId, parsed.data);
-            return res.status(201).json(author);
+            const subscriber = await subscriberService.register(userId, parsed.data);
+            return res.status(201).json(subscriber);
         } catch (err) {
             if (err instanceof NotFoundError) {
                 return res.status(404).json({ message: err.message });
@@ -33,27 +33,7 @@ export const authorController = {
                 return res.status(409).json({ message: err.message });
             }
             if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
-                return res.status(409).json({ message: 'Autor já cadastrado para este usuário.' });
-            }
-
-            console.error(err);
-            return res.status(500).json({ message: 'Erro interno do servidor.' });
-        }
-    },
-
-    async me(req: Request, res: Response) {
-        const userId = req.userId;
-
-        if (!userId) {
-            return res.status(401).json({ message: 'Não autenticado.' });
-        }
-
-        try {
-            const author = await authorService.getByUserId(userId);
-            return res.status(200).json(author);
-        } catch (err) {
-            if (err instanceof NotFoundError) {
-                return res.status(404).json({ message: err.message });
+                return res.status(409).json({ message: 'Assinante já cadastrado para este usuário.' });
             }
 
             console.error(err);

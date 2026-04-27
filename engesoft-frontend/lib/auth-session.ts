@@ -17,3 +17,18 @@ export function cookieHasAuthorRole(raw: string | undefined): boolean {
   const roles = parseRolesCookie(raw);
   return roles !== null && roles.includes("AUTHOR");
 }
+
+export function cookieHasReviewerRole(raw: string | undefined): boolean {
+  const roles = parseRolesCookie(raw);
+  return roles !== null && roles.includes("REVIEWER");
+}
+
+export function cookieHasSubscriberRole(raw: string | undefined): boolean {
+  const roles = parseRolesCookie(raw);
+  return roles !== null && roles.includes("SUBSCRIBER");
+}
+
+export function cookieHasChiefEditorRole(raw: string | undefined): boolean {
+  const roles = parseRolesCookie(raw);
+  return roles !== null && roles.includes("CHIEF_EDITOR");
+}

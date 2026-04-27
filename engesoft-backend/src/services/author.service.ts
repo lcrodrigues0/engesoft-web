@@ -19,4 +19,19 @@ export const authorService = {
 
         return authorRepository.createAndEnsureAuthorRole(userId, user.roles, input);
     },
+
+    async getByUserId(userId: string) {
+        const user = await userRepository.findById(userId);
+
+        if (!user) {
+            throw new NotFoundError('Usuário não encontrado.');
+        }
+
+        const author = await authorRepository.findByUserId(userId);
+        if (!author) {
+            throw new NotFoundError('Autor não encontrado para este usuário.');
+        }
+
+        return author;
+    },
 };

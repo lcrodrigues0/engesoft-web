@@ -5,6 +5,8 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import cors from 'cors';
 import { authorController } from './controllers/author.controller';
+import { reviewerController } from './controllers/reviewer.controller';
+import { subscriberController } from './controllers/subscriber.controller';
 import { userController } from './controllers/user.controller';
 
 const app = express();
@@ -55,6 +57,9 @@ app.get('/', (req, res) => {
 
 app.post('/register', (req, res) => userController.register(req, res));
 app.post('/authors', authenticate, (req, res) => authorController.register(req, res));
+app.post('/reviewers', authenticate, (req, res) => reviewerController.register(req, res));
+app.post('/subscribers', authenticate, (req, res) => subscriberController.register(req, res));
+app.get('/authors/me', authenticate, (req, res) => authorController.me(req, res));
 
 app.get('/me', authenticate, (req, res) => userController.me(req, res));
 
