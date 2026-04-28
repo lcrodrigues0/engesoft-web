@@ -24,3 +24,6 @@ O projeto utiliza **Docker Compose** para orquestrar os seguintes serviços:
 - **back-engesoft:** API Node.js que realiza migrações automáticas do Prisma ao iniciar (`npx prisma migrate deploy`).
 - **front-engesoft:** Aplicação Next.js integrada com variáveis de ambiente para serviços como Cloudinary.
 - **pgadmin-engesoft:** Interface visual para administração do banco de dados.
+
+---
+📌 Desenvolvido por **Letícia Cardoso Rodrigues**
